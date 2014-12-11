@@ -117,7 +117,7 @@ Dashboard::Application.routes.draw do
 
   # duplicate routes are for testing -- ActionController::TestCase calls to_s on all params
   get '/hoc/reset', to: 'script_levels#show', script_id: Script::HOC_NAME, reset:true, as: 'hoc_reset'
-  get '/hoc/:chapter', to: 'script_levels#show', script_id: Script::HOC_NAME, as: 'hoc_chapter', format: false
+  get '/hoc/:chapter', to: 'script_levels#show', script_id: Script::HOC_NAME, as: 'hoc_chapter'
 
   get '/k8intro/:chapter', to: 'script_levels#show', script_id: Script::TWENTY_HOUR_ID, as: 'k8intro_chapter', format: false
   get '/k8intro/:chapter', to: 'script_levels#show', script_id: Script::TWENTY_HOUR_ID.to_s, format: false
@@ -127,7 +127,7 @@ Dashboard::Application.routes.draw do
   get '/2014/:chapter', to: 'script_levels#show', script_id: Script::TWENTY_FOURTEEN_LEVELS_ID.to_s, format: false
   get '/builder/:chapter', to: 'script_levels#show', script_id: Script::BUILDER_ID, as: 'builder_chapter', format: false
   get '/builder/:chapter', to: 'script_levels#show', script_id: Script::BUILDER_ID.to_s, format: false
-  get '/flappy/:chapter', to: 'script_levels#show', script_id: Script::FLAPPY_ID, as: 'flappy_chapter', format: false
+  get '/flappy/:chapter', to: 'script_levels#show', script_id: Script::FLAPPY_ID, as: 'flappy_chapter'
   get '/flappy/:chapter', to: 'script_levels#show', script_id: Script::FLAPPY_ID.to_s, format: false
   get '/jigsaw/:chapter', to: 'script_levels#show', script_id: Script::JIGSAW_ID, as: 'jigsaw_chapter', format: false
   get '/jigsaw/:chapter', to: 'script_levels#show', script_id: Script::JIGSAW_ID.to_s, format: false
