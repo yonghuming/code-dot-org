@@ -65,7 +65,7 @@ def load_configuration()
     'poste_host'                  => 'localhost.code.org:9393',
     'poste_secret'                => 'not a real secret',
     'rack_env'                    => rack_env,
-    'rack_envs'                   => [:development, :production, :staging, :test, :levelbuilder],
+    'rack_envs'                   => [:development, :production, :staging, :test, :levelbuilder, :offline],
     'read_only'                   => false,
     'root_dir'                    => root_dir,
     'sendy_db_reader'             => 'mysql://root@localhost/',

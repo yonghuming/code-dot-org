@@ -138,6 +138,15 @@ namespace :build do
     end
   end
 
+  task :offline do
+    Dir.chdir(dashboard_dir) do
+      RakeUtils.system 'RAILS_ENV=offline rake assets:precompile'
+      RakeUtils.system' cp public/offline-assets/application-*.css ../offline/package/application.css'
+      RakeUtils.system 'cp public/offline-assets/application-*.js ../offline/package/application.js'
+      RakeUtils.system 'rm public/offline-assets/application-*'
+    end
+  end
+
   task :start_varnish do
     Dir.chdir(aws_dir) do
       unless rack_env?(:development) || (RakeUtils.system_('ps aux | grep -v grep | grep varnishd -q') == 0)
