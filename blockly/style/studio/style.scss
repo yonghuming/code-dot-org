@@ -1,4 +1,4 @@
-$root: '/blockly/media/studio/'; //TODO: Parameterize for asset pipeline
+@import '../config';
 
 #svgStudio {
   overflow: hidden;
@@ -8,7 +8,7 @@ $root: '/blockly/media/studio/'; //TODO: Parameterize for asset pipeline
 .icon21 {
   height: 21px;
   width: 21px;
-  background-image: url("#{$root}icons.png");
+  background-image: url("#{$root}/studio/icons.png");
 }
 .code {
   background-position: -21px 0px;

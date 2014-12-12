@@ -1,4 +1,4 @@
-$common_root: '/blockly/media/common_images/';
+@import 'config';
 $cyan: #0094ca;
 $charcoal: #5b6770;
 $orange: #ffa400;
@@ -996,7 +996,7 @@ $modal-image-margin-gap: 10px;
   $y-offset: $y * 26px;
   width: 26px;
   height: 26px;
-  background: url("#{$common_root}shared-sprites-26x26.png") $x-offset $y-offset;
+  background: url("#{$root}/common_images/shared-sprites-26x26.png") $x-offset $y-offset;
 }
 
 .run26 {

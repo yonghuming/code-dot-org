@@ -1,4 +1,4 @@
-$root: '/blockly/media/webapp/'; //TODO: Parameterize for asset pipeline
+@import '../config';
 
 .droplet-palette-group-header.yellow {
   border-left:10px solid #e0e053;
@@ -97,7 +97,7 @@ $root: '/blockly/media/webapp/'; //TODO: Parameterize for asset pipeline
 .icon21 {
   height: 21px;
   width: 21px;
-  background-image: url("#{$root}icons.png");
+  background-image: url("#{$root}/webapp/icons.png");
 }
 .code {
   background-position: -21px 0px;

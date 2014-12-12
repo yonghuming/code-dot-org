@@ -1,4 +1,4 @@
-$root: '/blockly/media/maze/'; //TODO: Parameterize for asset pipeline
+@import '../config';
 $green: #00b050;
 
 #svgMaze {
@@ -18,7 +18,7 @@ $green: #00b050;
 .icon21 {
   height: 21px;
   width: 21px;
-  background-image: url("#{$root}icons.png");
+  background-image: url("#{$root}/maze/icons.png");
 }
 .code {
   background-position: -21px 0px;

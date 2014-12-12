@@ -1,4 +1,4 @@
-$root: '/blockly/media/turtle/'; //TODO: Parameterize for asset pipeline
+@import '../config';
 
 #visualization {
   background-color: #fff;
@@ -8,7 +8,7 @@ $root: '/blockly/media/turtle/'; //TODO: Parameterize for asset pipeline
 .icon21 {
   height: 21px;
   width: 21px;
-  background-image: url("#{$root}icons.png");
+  background-image: url("#{$root}/calc/icons.png");
 }
 .code {
  background-position: -42px 0px;
