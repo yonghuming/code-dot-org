@@ -30,7 +30,6 @@
               = render partial: 'shared/user_header'
 
 
-.transparent_backdrop{style: 'display: none;'}
 - if @script_level
   .header_popup{id: 'headerPopup'}
     .header_popup_header
@@ -45,20 +44,6 @@
 
 
 :javascript
-  handleUserMenuClick = function () {
-    $('.user_options').toggle();
-    if ($(".user_options").css('display') == 'none') {
-      $(".transparent_backdrop").off('click', handleUserMenuClick);
-      $(".transparent_backdrop").off('touchend', handleUserMenuClick);
-      $(".transparent_backdrop").toggle();
-    }
-    else {
-      $(".transparent_backdrop").on('click', handleUserMenuClick);
-      $(".transparent_backdrop").on('touchend', handleUserMenuClick);
-      $(".transparent_backdrop").toggle();
-    }
-    return false;
-  }
   function isShowingPopup()
   {
     return $("#headerPopup").css('display') != 'none';
@@ -68,16 +53,10 @@
     if (!isShowingPopup()) {
       $(".header_popup_link_glyph").html("&#x25BC;");
       $(".header_popup_link_text").html("#{t(:more)}");
-      $(".transparent_backdrop").off('click', handlePopupClick);
-      $(".transparent_backdrop").off('touchend', handlePopupClick);
-      $(".transparent_backdrop").toggle();
     }
     else {
       $(".header_popup_link_glyph").html("&#x25B2;");
       $(".header_popup_link_text").html("#{t(:less)}");
-      $(".transparent_backdrop").on('click', handlePopupClick);
-      $(".transparent_backdrop").on('touchend', handlePopupClick);
-      $(".transparent_backdrop").toggle();
     }
   }
   var loadedPopup = false;

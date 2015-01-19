@@ -656,7 +656,7 @@ html, body {
   left:50%;
   width:635px;
   margin-left:-337px;
-  margin-top:-20px;
+  margin-top:-30px;
   border: 20px solid $bkgnd_color;
   border-top: 5px;
   border-bottom: 5px;
@@ -706,16 +706,6 @@ html, body {
   vertical-align: middle;
   height: 26px;
   cursor: pointer;
-}
-
-.transparent_backdrop {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 1040;
-  background-color: transparent;
 }
 
 .header_trophy_link:hover {
