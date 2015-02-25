@@ -180,7 +180,11 @@ Dashboard::Application.routes.draw do
 
   namespace :ops do
     # /ops/district/:id
-    resources :districts
+    resources :districts do
+      member do
+        get 'teachers'
+      end
+    end
     resources :cohorts
     resources :workshops do
       resources :segments, shallow: true # See http://guides.rubyonrails.org/routing.html#shallow-nesting
