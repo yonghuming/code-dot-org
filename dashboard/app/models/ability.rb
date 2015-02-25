@@ -59,6 +59,8 @@ class Ability
     if user.permission? 'facilitator'
       can :read, Workshop
       can :teachers, Workshop
+      # Allow facilitator to manage Workshop/Attendance for
+      # workshops in which they are a facilitator.
       can :manage, WorkshopAttendance do |attendance|
         attendance.segment.workshop.facilitators.include? user
       end
