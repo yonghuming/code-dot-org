@@ -1,52 +1,6 @@
 // Build the components namespace.
 window.components = {};
 
-// TODO:
-window.I18N = {
-  trophies: "<%= I18n.t(:trophies) %>",
-  less: "<%= I18n.t(:less) %>",
-  more: "<%= I18n.t(:more) %>",
-  slow_loading: "<%= I18n.t(:slow_loading) %>",
-  try_reloading: "<%= I18n.t(:try_reloading) %>",
-  lesson_plan: "<%= I18n.t(:lesson_plan) %>",
-  pdf_download: "<%= I18n.t(:pdf_download) %>",
-  video_coming_soon: "<%= I18n.t('video_coming_soon') %>",
-  download_coming_soon: "<%= I18n.t('download_coming_soon') %>",
-  view_lesson_plan: "<%= I18n.t('view_lesson_plan') %>",
-  next_stage: "<%= I18n.t(:next_stage) %>",
-  nav: {
-    popup: {
-      mastery: "<%= I18n.t('nav.popup.mastery') %>",
-      progress: "<%= I18n.t('nav.popup.progress') %>",
-      close: "<%= I18n.t('nav.popup.close') %>"
-    },
-    user: {
-      classroom: "<%= I18n.t('nav.user.classroom') %>",
-      stats: "<%= I18n.t('nav.user.stats') %>",
-      settings: "<%= I18n.t('nav.user.settings') %>",
-      prizes: "<%= I18n.t('nav.user.prizes') %>",
-      logout: "<%= I18n.t('nav.user.logout') %>",
-      signin: "<%= I18n.t('nav.user.signin') %>",
-      label: "<%= I18n.t('nav.user.label', username: '***') %>"
-    }
-  },
-  progress: {
-    not_started: "<%= I18n.t('progress.not_started') %>",
-    in_progress: "<%= I18n.t('progress.in_progress') %>",
-    completed_too_many_blocks: "<%= I18n.t('progress.completed_too_many_blocks') %>",
-    completed_perfect: "<%= I18n.t('progress.completed_perfect') %>",
-    assessment: "<%= I18n.t('progress.assessment') %>"
-  },
-  reference_area: {
-    teacher: "<%= I18n.t('reference_area.teacher') %>",
-    subtitle: "<%= I18n.t('reference_area.subtitle') %>"
-  },
-  video: {
-    download: "<%= I18n.t('video.download') %>"
-  }
-};
-
-
 // New private scope
 (function() {
 
@@ -147,3 +101,51 @@ window.I18N = {
   });
 
 }).call(this);
+
+
+
+
+// TODO:
+window.I18N = {
+  trophies: "<%= I18n.t(:trophies) %>",
+  less: "<%= I18n.t(:less) %>",
+  more: "<%= I18n.t(:more) %>",
+  slow_loading: "<%= I18n.t(:slow_loading) %>",
+  try_reloading: "<%= I18n.t(:try_reloading) %>",
+  lesson_plan: "<%= I18n.t(:lesson_plan) %>",
+  pdf_download: "<%= I18n.t(:pdf_download) %>",
+  video_coming_soon: "<%= I18n.t('video_coming_soon') %>",
+  download_coming_soon: "<%= I18n.t('download_coming_soon') %>",
+  view_lesson_plan: "<%= I18n.t('view_lesson_plan') %>",
+  next_stage: "<%= I18n.t(:next_stage) %>",
+  nav: {
+    popup: {
+      mastery: "<%= I18n.t('nav.popup.mastery') %>",
+      progress: "<%= I18n.t('nav.popup.progress') %>",
+      close: "<%= I18n.t('nav.popup.close') %>"
+    },
+    user: {
+      classroom: "<%= I18n.t('nav.user.classroom') %>",
+      stats: "<%= I18n.t('nav.user.stats') %>",
+      settings: "<%= I18n.t('nav.user.settings') %>",
+      prizes: "<%= I18n.t('nav.user.prizes') %>",
+      logout: "<%= I18n.t('nav.user.logout') %>",
+      signin: "<%= I18n.t('nav.user.signin') %>",
+      label: "<%= I18n.t('nav.user.label', username: '***') %>"
+    }
+  },
+  progress: {
+    not_started: "<%= I18n.t('progress.not_started') %>",
+    in_progress: "<%= I18n.t('progress.in_progress') %>",
+    completed_too_many_blocks: "<%= I18n.t('progress.completed_too_many_blocks') %>",
+    completed_perfect: "<%= I18n.t('progress.completed_perfect') %>",
+    assessment: "<%= I18n.t('progress.assessment') %>"
+  },
+  reference_area: {
+    teacher: "<%= I18n.t('reference_area.teacher') %>",
+    subtitle: "<%= I18n.t('reference_area.subtitle') %>"
+  },
+  video: {
+    download: "<%= I18n.t('video.download') %>"
+  }
+};
