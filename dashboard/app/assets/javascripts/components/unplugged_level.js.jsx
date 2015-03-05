@@ -1,8 +1,8 @@
 // UnpluggedLevel user={} app={}
 components.UnpluggedLevel = React.createClass({
   render: function() {
-    var P = this.props || {};
-    var level = P.app;
+    var user = this.props.user || {};
+    var level = this.props.app || {};
     var stage = level.stage || {};
 
     if (!level)
@@ -13,7 +13,7 @@ components.UnpluggedLevel = React.createClass({
       video_download = <a className="video-download btn pull-right" href={level.video.download}>{I18N.video.download}</a>;
 
     var lesson_plans, pegasus_lessons;
-    var is_student = P.user && P.user.student;
+    var is_student = user.student;
     if (!is_student) {
       if (stage.lesson_plan_html_url)
         pegasus_lessons = (
@@ -25,9 +25,9 @@ components.UnpluggedLevel = React.createClass({
         );
 
       if (level.pdfs)
-        lesson_plans = $.map(level.pdfs, function(pdf) {
+        lesson_plans = $.map(level.pdfs, (function(pdf) {
           return <a key={pdf.name} className="btn pull-right pdf-button" href={ Frame.getAbsolutePath(pdf.url) } target="_blank">{ pdf.name }</a>;
-        });
+        }).bind(this));
       else if (!pegasus_lessons)
         lesson_plans = <a className="btn pull-right pdf-button disabled">{I18N.download_coming_soon}</a>;
     }

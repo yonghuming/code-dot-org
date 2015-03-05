@@ -4,26 +4,25 @@ components.SignInButton = React.createClass({
   },
 
   render: function() {
-    var P = this.props || {};
-    var S = this.state || {};
+    var user = this.props.user || {};
 
-    if (P.user) {
-      var greeting = I18N.nav.user.label.replace("***", P.user.username);
+    if (user) {
+      var greeting = I18N.nav.user.label.replace("***", user.username);
 
       var menu;
-      if (!S.popped) {
+      if (!this.state.popped) {
         arrow = <span className="user_menu_glyph">&#x25BC;</span>; // ▼
       } else {
         arrow = <span className="user_menu_glyph">&#x25B2;</span>; // ▲
 
         options = [];
-        if (P.user.teacher)
-          options.push(<a key="dashboard" href={P.user.actions.dashboard}>{I18N.nav.user.classroom}</a>);
+        if (user.teacher)
+          options.push(<a key="dashboard" href={user.actions.dashboard}>{I18N.nav.user.classroom}</a>);
         options.push(<a key="root" href={Frame.rootUrl}>{I18N.nav.user.stats}</a>);
-        options.push(<a key="settings" href={P.user.actions.settings}>{I18N.nav.user.settings}</a>);
-        if (P.user.teacher && (P.user.teacher_prize || P.user.bonus_prize))
-          options.push(<a key="prize" href={P.user.actions.prizes}>{I18N.nav.user.prizes}</a>);
-        options.push(<a key="signout" href={P.user.actions.signout}>{I18N.nav.user.logout}</a>);
+        options.push(<a key="settings" href={user.actions.settings}>{I18N.nav.user.settings}</a>);
+        if (user.teacher && (user.teacher_prize || user.bonus_prize))
+          options.push(<a key="prize" href={user.actions.prizes}>{I18N.nav.user.prizes}</a>);
+        options.push(<a key="signout" href={user.actions.signout}>{I18N.nav.user.logout}</a>);
 
         menu = (
             <div style={{ position: 'relative', top: 3 }}>

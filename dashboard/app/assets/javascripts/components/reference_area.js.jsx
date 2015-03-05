@@ -1,10 +1,9 @@
 // ReferenceArea level={}
 components.ReferenceArea = React.createClass({
   render: function() {
-    var P = this.props || {};
-    var user = P.user || {};
-    var state = P.level || {};
-    var level = state.level || {}
+    var user = this.props.user || {};
+    var state = this.props.level || {};
+    var level = state.level || {};
 
     var solutionLink;
     if (level.solutionPath && (user.admin || user.teacher)) {

@@ -1,6 +1,4 @@
 // It's not really a JSX yet.
-
-// New private scope
 (function() {
 
   // class UIFrame
@@ -318,4 +316,4 @@
 
   window.UIFrame = UIFrame;
 
-}).call(this);
+})();

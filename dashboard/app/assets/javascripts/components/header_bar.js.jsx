@@ -4,13 +4,10 @@ components.HeaderBar = React.createClass({
   },
 
   render: function() {
-    var P = this.props || {};
-    var state = this.state || {};
-
-    var user = P.user || {}
-    var script = P.script || {}
-    var thisLevel = P.level || {};
-    var progress = P.progress || {};
+    var user = this.props.user || {};
+    var script = this.props.script || {};
+    var thisLevel = this.props.level || {};
+    var progress = this.props.progress || {};
     var stage = thisLevel.stage || {};
     var level = thisLevel.level || {};
 
@@ -61,7 +58,7 @@ components.HeaderBar = React.createClass({
     if (stage.script_stages > 1 || progress.trophies) {
       var arrow, label;
 
-      if (state.popped) {
+      if (this.state.popped) {
         arrow = <div className="header_popup_link_glyph">&#x25B2;</div>; // ▲
         label = I18N.less;
       } else {
@@ -79,8 +76,8 @@ components.HeaderBar = React.createClass({
 
     // Popup stage navigation
     var headerPopup;
-    if (state.popped)
-      headerPopup = <components.HeaderPopup user={user} script={script} progress={progress} selected={level_id} jumpToTrophies={state.jumpToTrophies} onShow={this.showPopup} />;
+    if (this.state.popped)
+      headerPopup = <components.HeaderPopup user={user} script={script} progress={progress} selected={level_id} jumpToTrophies={this.state.jumpToTrophies} onShow={this.showPopup} />;
 
     return (
         <div>
@@ -123,7 +120,7 @@ components.HeaderBar = React.createClass({
 
     if (!!show) {
       var P = this.props || {};
-      var thisLevel = P.level || {};
+      var thisLevel = this.props.level || {};
       var stage = thisLevel.stage || {};
 
       // Ask the script store to load a particular script.

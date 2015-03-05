@@ -1,10 +1,6 @@
 // It's not really a JSX yet.
-
-// New private scope -- a lot of this is boilerplate for class structures, taken from coffeescript
 (function() {
-  var __extends = function(child, parent) { for (var key in parent) { if ({}.hasOwnProperty.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  // class App, the base class for all level apps - provides some useful functions that all
+  // Class App, the base class for all level apps - provides some useful functions that all
   // level types will probably want to use, including milestone reporting, callouts, etc.
   var App = (function() {
 
@@ -189,7 +185,7 @@
 
   // class BlocklyApp extends App
   var BlocklyApp = (function(_super) {
-    __extends(BlocklyApp, _super);
+    BlocklyApp.__extends(_super);
 
     // Must have a constructor
     function BlocklyApp(opts) {
@@ -333,7 +329,7 @@
 
   // class UnpluggedApp extends App
   var UnpluggedApp = (function(_super) {
-    __extends(UnpluggedApp, _super);
+    UnpluggedApp.__extends(_super);
 
     // Must have a constructor
     function UnpluggedApp(opts) {
@@ -353,4 +349,4 @@
   window.BlocklyApp = BlocklyApp;
   window.UnpluggedApp = UnpluggedApp;
 
-}).call(this);
+})();

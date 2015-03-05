@@ -1,6 +1,22 @@
 // Build the components namespace.
 window.components = {};
 
+Function.prototype.__extends = function(parent) {
+  var child = this;
+  for (var key in parent) {
+    if (parent.hasOwnProperty(key)) {
+      child[key] = parent[key];
+    }
+  }
+  function Constructor() {
+    this.constructor = child;
+  }
+  Constructor.prototype = parent.prototype;
+  child.prototype = new Constructor();
+  child.__super__ = parent.prototype;
+  return child;
+};
+
 // New private scope
 (function() {
 

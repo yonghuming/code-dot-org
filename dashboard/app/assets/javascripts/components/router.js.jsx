@@ -1,8 +1,5 @@
 // It's not really a JSX, but eventually it would be.
-
-// New private scope -- a lot of this is boilerplate for class structures, taken from coffeescript
 (function() {
-  var __extends = function(child, parent) { for (var key in parent) { if ({}.hasOwnProperty.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   // class UIRouter: this is an incredibly simple router with our routes baked into it.
   // This will be completely replaced when we choose a router.
@@ -65,4 +62,4 @@
 
   window.UIRouter = UIRouter;
 
-}).call(this);
+})();
