@@ -867,33 +867,35 @@ class ActivitiesControllerTest < ActionController::TestCase
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
 
-  test 'milestone changes to next stage in default script' do
-    last_level_in_stage = @script_level.script.script_levels.select{|x|x.level.game.name == 'Artist'}.last
-    post :milestone, @milestone_params.merge(script_level_id: last_level_in_stage)
-    assert_response :success
-    response = JSON.parse(@response.body)
-    assert_equal({'previous'=>{'name'=>'The Artist'}}, response['stage_changing'])
-  end
+  # TODO OFFLINE: These can be tested against static scripts or on client
 
-  test 'milestone changes to next stage in custom script' do
-    ScriptLevel.class_variable_set(:@@script_level_map, nil)
-    game = create(:game)
-    levels = (1..3).map { |n| create(:level, :name => "Level #{n}", :game => game) }
-    script_dsl = ScriptDSL.parse(
-      "stage 'Milestone Stage 1'; level 'Level 1'; level 'Level 2'; stage 'Milestone Stage 2'; level 'Level 3'",
-      "a filename"
-    )
-    script = Script.add_script({name: 'Milestone Script'}, script_dsl[0][:stages].map{|stage| stage[:levels]}.flatten)
+  # test 'milestone changes to next stage in default script' do
+  #   last_level_in_stage = @script_level.script.script_levels.select{|x|x.level.game.name == 'Artist'}.last
+  #   post :milestone, @milestone_params.merge(script_level_id: last_level_in_stage)
+  #   assert_response :success
+  #   response = JSON.parse(@response.body)
+  #   assert_equal({'previous'=>{'name'=>'The Artist'}}, response['stage_changing'])
+  # end
 
-    last_level_in_first_stage = script.stages.first.script_levels.last
-    post :milestone, @milestone_params.merge(script_level_id: last_level_in_first_stage)
-    assert_response :success
-    response = JSON.parse(@response.body)
+  # test 'milestone changes to next stage in custom script' do
+  #   ScriptLevel.class_variable_set(:@@script_level_map, nil)
+  #   game = create(:game)
+  #   levels = (1..3).map { |n| create(:level, :name => "Level #{n}", :game => game) }
+  #   script_dsl = ScriptDSL.parse(
+  #     "stage 'Milestone Stage 1'; level 'Level 1'; level 'Level 2'; stage 'Milestone Stage 2'; level 'Level 3'",
+  #     "a filename"
+  #   )
+  #   script = Script.add_script({name: 'Milestone Script'}, script_dsl[0][:stages].map{|stage| stage[:levels]}.flatten)
 
-    # find localized test strings for custom stage names in script
-    assert response.has_key?('stage_changing'), "No key 'stage_changing' in response #{response.inspect}"
-    assert_equal('milestone-stage-1', response['stage_changing']['previous']['name'])
-  end
+  #   last_level_in_first_stage = script.stages.first.script_levels.last
+  #   post :milestone, @milestone_params.merge(script_level_id: last_level_in_first_stage)
+  #   assert_response :success
+  #   response = JSON.parse(@response.body)
+
+  #   # find localized test strings for custom stage names in script
+  #   assert response.has_key?('stage_changing'), "No key 'stage_changing' in response #{response.inspect}"
+  #   assert_equal('milestone-stage-1', response['stage_changing']['previous']['name'])
+  # end
 
   test 'New level completed response' do
     def new_level

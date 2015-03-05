@@ -2,6 +2,7 @@ require 'test_helper'
 
 class LevelsHelperTest < ActionView::TestCase
   include LocaleHelper
+  include ScriptLevelsHelper
 
   setup do
     @maze_data = {:game_id=>25, :user_id => 1, :name=>"__bob4", :level_num=>"custom", :skin=>"birds", :instructions=>"sdfdfs"}

@@ -8,7 +8,7 @@ module LevelsHelper
     elsif script_level.script.name == Script::FLAPPY_NAME
       flappy_chapter_path(script_level.chapter)
     elsif script_level.stage
-      script_stage_script_level_path(script_level.script.id, script_level.stage.position, script_level.position)
+      script_stage_script_level_path(script_level.script.name, script_level.stage.position, script_level.position)
     else
       return "/FAILURE"  # TODO OFFLINE
     end
@@ -138,9 +138,15 @@ module LevelsHelper
 
   # Code for generating the blockly options hash
   def blockly_options(local_assigns={})
-    # Use values from properties json when available (use String keys instead of Symbols for consistency)
-    level = summarize_script_level(@script_level).stringify_keys.merge(@level.properties)
-    level['stage'] = @script_level.stage.position
+    if @script_level
+      # Use values from properties json when available (use String keys instead of Symbols for consistency)
+      level = summarize_script_level(@script_level).stringify_keys.merge(@level.properties)
+      level['stage'] = @script_level.stage.position
+    else
+      # requires @level
+      # TODO OFFLINE: build a script_level from @level -- this is breaking tests
+      level = {}
+    end
 
     # Set some specific values - TODO: can we do this entirely from summarize?
     level['puzzle_number'] = @script_level ? @script_level.position : 1

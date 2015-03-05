@@ -190,6 +190,7 @@ class LevelSourcesControllerTest < ActionController::TestCase
     assert_equal "max-age=36000, public", response.headers["Cache-Control"]
   end
 
+  # TODO OFFLINE: This test is known broken -- appOptions is not in the source
   test 'include level source ID for send to phone dialog' do
     # Prevents regressions in #79201066
     # Note: This test depends on the current structure of the 'appOptions' interface to Blockly in LevelSourcesController#show.
