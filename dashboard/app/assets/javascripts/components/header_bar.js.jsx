@@ -1,9 +1,9 @@
 components.HeaderBar = React.createClass({
-  getInitialState: function() {
-    return { popped: false };
+  getInitialState: function () {
+    return {popped: false};
   },
 
-  render: function() {
+  render: function () {
     var user = this.props.user || {};
     var script = this.props.script || {};
     var thisLevel = this.props.level || {};
@@ -12,14 +12,16 @@ components.HeaderBar = React.createClass({
     var level = thisLevel.level || {};
 
     // Don't render the progress buttons unless we are initialized with a stage
-    if (!stage)
+    if (!stage) {
       return;
+    }
 
     // This is a bit of a hack.  Level.level.id gets overwritten when blockly initializes, so it's been cached in another
     // location until we can fix that.
     var level_id = level.level_id;
-    if (!level_id && level.level)
+    if (!level_id && level.level) {
       level_id = level.level.id;
+    }
 
     // Title
     var titleBox;
@@ -76,8 +78,9 @@ components.HeaderBar = React.createClass({
 
     // Popup stage navigation
     var headerPopup;
-    if (this.state.popped)
+    if (this.state.popped) {
       headerPopup = <components.HeaderPopup user={user} script={script} progress={progress} selected={level_id} jumpToTrophies={this.state.jumpToTrophies} onShow={this.showPopup} />;
+    }
 
     return (
         <div>
@@ -95,7 +98,7 @@ components.HeaderBar = React.createClass({
     );
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     if (this.state.popped) {
       // Catch clicks anywhere else and close the popup
       $(document).on('click', this.onModalClick);
@@ -104,7 +107,7 @@ components.HeaderBar = React.createClass({
     }
   },
 
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       popped: false,
       jumpToTrophies: false
@@ -112,7 +115,7 @@ components.HeaderBar = React.createClass({
   },
 
   // Three possible arguments: true, false, or "trophies" (the last one autoscrolls the page to the bottom of the popup)
-  showPopup: function(show) {
+  showPopup: function (show) {
     this.setState({
       popped: !!show,
       jumpToTrophies: show == 'trophies'
@@ -131,16 +134,16 @@ components.HeaderBar = React.createClass({
 
   },
 
-  onTrophyClick: function(ev) {
+  onTrophyClick: function (ev) {
     this.showPopup("trophies");
     ev.stopPropagation();
   },
-  onTogglePopup: function(ev) {
+  onTogglePopup: function (ev) {
     this.showPopup(!this.state.popped);
     ev.stopPropagation();
   },
 
-  onModalClick: function(ev) {
+  onModalClick: function (ev) {
     var el;
 
     // Clicks outside the popup close it

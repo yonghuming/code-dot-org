@@ -1,27 +1,30 @@
 // It's not really a JSX yet.
-(function() {
+(function () {
   // Class App, the base class for all level apps - provides some useful functions that all
   // level types will probably want to use, including milestone reporting, callouts, etc.
-  var App = (function() {
+  var App = (function () {
 
     // Must have a constructor
     function App(opts) {
       $.extend(this, {
         Dialog: Dialog,
         cdoSounds: CDOSounds,
-        position: { blockYCoordinateInterval: 25 }
+        position: {blockYCoordinateInterval: 25}
       }, opts);
 
       // Turn string values into functions for keys that begin with 'fn_' (JSON can't contain function definitions)
       // E.g. { fn_example: 'function () { return; }' } becomes { example: function () { return; } }
       (function fixUpFunctions(node) {
-        if (typeof node !== 'object') return;
+        if (typeof node !== 'object') {
+          return;
+        }
 
         for (var i in node) {
           if (/^fn_/.test(i)) {
             try {
               node[i.replace(/^fn_/, '')] = eval('(' + node[i] + ')');
-            } catch (e) { }
+            } catch (e) {
+            }
           } else {
             fixUpFunctions(node[i]);
           }
@@ -37,25 +40,26 @@
     }
 
     $.extend(App.prototype, {
-      loadSource: function(filename, locale) {
+      loadSource: function (filename, locale) {
         var _this = this;
 
         return function () {
-          if (locale)
+          if (locale) {
             filename = locale + "/" + filename;
+          }
           return Frame.loadSource(_this.baseUrl + "js/" + filename + ".js");
         };
       },
 
-      loadStyle: function(name) {
+      loadStyle: function (name) {
         return Frame.loadStyle(this.baseUrl + 'css/' + name + '.css');
       },
 
-      onInitialize: function() {
+      onInitialize: function () {
         $(document).trigger('appInitialized', this);
       },
 
-      onAttempt: function(report) {
+      onAttempt: function (report) {
         var scriptPath = this.scriptPath;
         var _this = this;
 
@@ -74,34 +78,37 @@
         // extra copies of the same code.)
         // ==============
 
-        var onMilestone = function(response) {
+        var onMilestone = function (response) {
           _this.report = null;
 
           // This used to be passed back from the milestone API.  It's used in a place that might not have easy access to
           // scriptPath, so we pack it in until we can remove that location.
           response.levelPath = scriptPath;
 
-          if (report.onComplete)
+          if (report.onComplete) {
             report.onComplete(response);
+          }
         };
 
         var data = $.extend({}, report);
         delete data.onComplete;
 
-        var user = window.userInfoStore.value || { id: 0 };
+        var user = window.userInfoStore.value || {id: 0};
         var milestone_url = Frame.getAbsolutePath('/milestone/' + user.id + '/' + this.level.sl_id);
 
         // Make a POST request to the milestone API
-        if (this.report)
+        if (this.report) {
           this.report.abort();
+        }
         this.report = Frame.save({
           url: milestone_url,
           data: data,
           success: onMilestone,
           error: function (xhr, textStatus, thrownError) {
             // Ignore an aborted API call
-            if (textStatus == "abort")
+            if (textStatus == "abort") {
               return;
+            }
 
             // It's okay if milestone fails. Catch the error and pretend it succeeded with minimal info.
             onMilestone({
@@ -112,13 +119,13 @@
           }
         });
       },
-      onResetPressed: function() {
+      onResetPressed: function () {
         if (this.report) {
           this.report.abort();
           this.report = null;
         }
       },
-      onContinue: function() {
+      onContinue: function () {
         var route;
 
         // Is this level the script completion?
@@ -128,7 +135,7 @@
           };
         } else {
           // Calculate the next level and route to it.
-          var next = this.level.next || [ this.level.stage, this.level.position + 1];
+          var next = this.level.next || [this.level.stage, this.level.position + 1];
           route = {
             script: this.script_name,
             stage: next[0],
@@ -146,14 +153,14 @@
           }
         }
       },
-      backToPreviousLevel: function() {
+      backToPreviousLevel: function () {
         if (this.level.previous === false) {
           // Does this mean anything or do we just fail silently?
           return;
         }
 
         // Calculate the previous level and route to it.
-        var prev = this.level.previous || [ this.level.stage, this.level.position - 1];
+        var prev = this.level.previous || [this.level.stage, this.level.position - 1];
         var route = {
           script: this.script_name,
           stage: prev[0],
@@ -163,7 +170,7 @@
           // What kind of message should the user get?
         }
       },
-      showInstructionsWrapper: function(showInstructions) {
+      showInstructionsWrapper: function (showInstructions) {
         var hasInstructions = this.level.instructions || this.level.aniGifURL;
         if (!hasInstructions || this.share || this.level.skipInstructionsPopup) {
           return;
@@ -184,7 +191,7 @@
   })();
 
   // class BlocklyApp extends App
-  var BlocklyApp = (function(_super) {
+  var BlocklyApp = (function (_super) {
     BlocklyApp.__extends(_super);
 
     // Must have a constructor
@@ -195,16 +202,16 @@
     }
 
     $.extend(BlocklyApp.prototype, {
-      startBlockly: function(dom) {
+      startBlockly: function (dom) {
         this.containerId = dom.id;
 
         var _this = this;
-        this.loadAssets().then(function() {
+        this.loadAssets().then(function () {
           window[_this.app + 'Main'](_this);
         });
       },
 
-      loadAssets: function() {
+      loadAssets: function () {
         this.loadStyle('common');
         this.loadStyle(this.app);
 
@@ -212,26 +219,26 @@
         if (this.droplet) {
           this.loadStyle('droplet/droplet.min');
           promise = this.loadSource('jsinterpreter/acorn_interpreter')()
-            .then(this.loadSource('requirejs/require'))
-            .then(this.loadSource('ace/ace'))
-            .then(this.loadSource('ace/ext-language_tools'))
-            .then(this.loadSource('droplet/droplet-full.min'));
+              .then(this.loadSource('requirejs/require'))
+              .then(this.loadSource('ace/ace'))
+              .then(this.loadSource('ace/ext-language_tools'))
+              .then(this.loadSource('droplet/droplet-full.min'));
         } else {
           promise = this.loadSource('blockly')()
-            .then(this.loadSource('blockly_locale', this.locale));
+              .then(this.loadSource('blockly_locale', this.locale));
         }
         return promise
-          .then(this.loadSource('common' + this.pretty))
-          .then(this.loadSource('common_locale', this.locale))
-          .then(this.loadSource(this.app + '_locale', this.locale))
-          .then(this.loadSource(this.app + this.pretty));
+            .then(this.loadSource('common' + this.pretty))
+            .then(this.loadSource('common_locale', this.locale))
+            .then(this.loadSource(this.app + '_locale', this.locale))
+            .then(this.loadSource(this.app + this.pretty));
       },
 
-      onInitialize: function() {
+      onInitialize: function () {
         window.startTiming('Puzzle', this.scriptPath, '');
 
         // Hide callouts when the function editor is closed (otherwise they jump to the top left corner)
-        $(window).on('function_editor_closed', function() {
+        $(window).on('function_editor_closed', function () {
           $('.cdo-qtips').qtip('hide');
         });
 
@@ -246,10 +253,10 @@
         BlocklyApp.__super__.onInitialize.apply(this, arguments);
       },
 
-      createCallouts: function() {
+      createCallouts: function () {
         $.fn.qtip.zindex = 500;
 
-        this.callouts && this.callouts.every(function(callout) {
+        this.callouts && this.callouts.every(function (callout) {
           var selector = callout.element_id; // jquery selector.
           if ($(selector).length === 0 && !callout.on) {
             return true;
@@ -309,7 +316,7 @@
           }
 
           if (callout.on) {
-            window.addEventListener(callout.on, function() {
+            window.addEventListener(callout.on, function () {
               if (!callout.seen && $(selector).length > 0) {
                 callout.seen = true;
                 $(selector).qtip(config).qtip('show');
@@ -328,7 +335,7 @@
   })(App);
 
   // class UnpluggedApp extends App
-  var UnpluggedApp = (function(_super) {
+  var UnpluggedApp = (function (_super) {
     UnpluggedApp.__extends(_super);
 
     // Must have a constructor

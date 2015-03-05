@@ -1,7 +1,7 @@
 // Build the components namespace.
 window.components = {};
 
-Function.prototype.__extends = function(parent) {
+Function.prototype.__extends = function (parent) {
   var child = this;
   for (var key in parent) {
     if (parent.hasOwnProperty(key)) {
@@ -11,6 +11,7 @@ Function.prototype.__extends = function(parent) {
   function Constructor() {
     this.constructor = child;
   }
+
   Constructor.prototype = parent.prototype;
   child.prototype = new Constructor();
   child.__super__ = parent.prototype;
@@ -18,13 +19,14 @@ Function.prototype.__extends = function(parent) {
 };
 
 // New private scope
-(function() {
+(function () {
 
-  var WatchedUpdate = function() {
+  var WatchedUpdate = function () {
     // TODO: Investigate why this is sometimes called before the component has mounted.
     // I noticed a mention of a related bug in React 0.12, so it might not be our fault.
-    if (this._lifeCycleState == "UNMOUNTED")
+    if (this._lifeCycleState == "UNMOUNTED") {
       return;
+    }
 
     this.setState({
       version: (this.state || {}).version++
@@ -34,9 +36,9 @@ Function.prototype.__extends = function(parent) {
   // This is a wrapper to create a NEW component that watches some Stores and renders a component
   // using the values from those stores as properties.
   // TODO: formalize its location/usage
-  Watching = function(component, stores) {
+  Watching = function (component, stores) {
     return component.Watching = React.createClass({
-      componentDidMount: function() {
+      componentDidMount: function () {
         this.onStoreChanged = WatchedUpdate.bind(this);
 
         for (var key in stores) {
@@ -47,18 +49,18 @@ Function.prototype.__extends = function(parent) {
           }
 
           stores[key] = store;
-          store.subscribe( this.onStoreChanged );
+          store.subscribe(this.onStoreChanged);
         }
       },
 
-      componentDidUnmount: function() {
+      componentDidUnmount: function () {
         for (var key in stores) {
-          stores[key].unsubscribe( this.onStoreChanged );
+          stores[key].unsubscribe(this.onStoreChanged);
         }
       },
 
-      render: function() {
-        var props = React.__spread( {}, this.props);
+      render: function () {
+        var props = React.__spread({}, this.props);
         for (var key in stores) {
           props[key] = stores[key].value;
         }
@@ -78,7 +80,7 @@ Function.prototype.__extends = function(parent) {
     }
   }
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     var el;
 
     window.levelStore = new LevelStore();
@@ -116,10 +118,7 @@ Function.prototype.__extends = function(parent) {
 
   });
 
-}).call(this);
-
-
-
+})();
 
 // TODO:
 window.I18N = {

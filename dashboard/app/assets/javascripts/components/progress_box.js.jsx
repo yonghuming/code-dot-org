@@ -1,14 +1,15 @@
 // ProgressBox: stage={} selected=id progress={}
 components.ProgressBox = React.createClass({
-  render: function() {
+  render: function () {
     var stage = this.props.stage || {};
     var levels = stage.levels || [];
-    if (!levels.length)
+    if (!levels.length) {
       return false;
+    }
 
     var levelProgress = this.props.progress.levels || {};
 
-    var els = $.map(levels, (function(level, index) {
+    var els = $.map(levels, (function (level, index) {
       var status = levelProgress[level.id] || {};
 
       var href = Frame.linkTo({
@@ -34,7 +35,7 @@ components.ProgressBox = React.createClass({
           <div className={React.addons.classSet(classes1)} key={level.id}>
             <a className={React.addons.classSet(classes2)} href={href}>{level.title}</a>
           </div>
-        );
+      );
     }).bind(this));
     return <div className="progress_container">{els}</div>;
   }

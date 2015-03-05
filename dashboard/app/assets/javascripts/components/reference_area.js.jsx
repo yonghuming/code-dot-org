@@ -1,6 +1,6 @@
 // ReferenceArea level={}
 components.ReferenceArea = React.createClass({
-  render: function() {
+  render: function () {
     var user = this.props.user || {};
     var state = this.props.level || {};
     var level = state.level || {};
@@ -30,32 +30,35 @@ components.ReferenceArea = React.createClass({
                 data-name={video.data.name}
                 data-src={video.data.src}
             >
-              <img className="video_thumbnail" src={ Frame.getAbsolutePath(video.thumbnail_url) } width={39*4.7} />
-              <div className="video_name"><span>{video.name}</span></div>
+              <img className="video_thumbnail" src={ Frame.getAbsolutePath(video.thumbnail_url) } width={39 * 4.7} />
+              <div className="video_name">
+                <span>{video.name}</span>
+              </div>
             </a>
         );
 
-        if ((i % 2) == 1)
+        if ((i % 2) == 1) {
           relatedVideos.push(<div key={"br" + i} className="clear" />);
+        }
       }
 
       relatedVideos.push(<div key="end" className="clear" />);
     }
 
     return (
-        <div className="reference_area" style={{ display: 'none' }}>
+        <div className="reference_area" style={{display: 'none'}}>
           { solutionLink }
           { relatedVideos }
         </div>
     );
   },
 
-  onVideoClick: function(ev) {
+  onVideoClick: function (ev) {
     var el = $(ev.target).closest('.video_link');
 
-    showVideoDialog( $.extend({
+    showVideoDialog($.extend({
       enable_fallback: true,
       autoplay: true
-    }, el.data()) );
+    }, el.data()));
   }
 });

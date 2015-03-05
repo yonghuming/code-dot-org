@@ -1,5 +1,5 @@
 components.HeaderActions = React.createClass({
-  render: function() {
+  render: function () {
     var cs = React.addons.classSet;
     var level = this.props.level || {};
 
@@ -36,7 +36,7 @@ components.HeaderActions = React.createClass({
 
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     // Register the QTIP for any header actions we created
     $('.header_actions > a').qtip({
       content: {

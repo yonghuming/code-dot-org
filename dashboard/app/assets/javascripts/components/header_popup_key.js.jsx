@@ -1,7 +1,7 @@
 components.HeaderPopupKey = React.createClass({
-  render: function() {
+  render: function () {
     return (
-        <div className="key" style={{ clear: 'both' }}>
+        <div className="key" style={{clear: 'both'}}>
           <dl>
             <dt><span className="puzzle_outer_level">
               <a className="level_link not_tried"><span className="puzzle-number">1</span></a>
