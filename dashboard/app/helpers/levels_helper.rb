@@ -7,8 +7,10 @@ module LevelsHelper
       hoc_chapter_path(script_level.chapter)
     elsif script_level.script.name == Script::FLAPPY_NAME
       flappy_chapter_path(script_level.chapter)
+    elsif script_level.stage
+      script_stage_script_level_path(script_level.script.id, script_level.stage.position, script_level.position)
     else
-      script_stage_script_level_path(script_level.script, script_level.stage, script_level.position)
+      return "/FAILURE"  # TODO OFFLINE
     end
   end
 

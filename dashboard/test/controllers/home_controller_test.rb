@@ -129,6 +129,8 @@ class HomeControllerTest < ActionController::TestCase
     assert_select '#left_off', 0
   end
 
+  # TODO OFFLINE:  These currently fail for all Continue links
+  
   Script.all.each do |script|
     next if script.hidden? # only test public facing scripts
     test "logged in user sees resume info and progress for course #{script.name}" do
@@ -207,21 +209,23 @@ class HomeControllerTest < ActionController::TestCase
 #    assert_response 400
 #  end
 
-  test "do not show prize link if you don't have a prize" do
-    sign_in create(:teacher)
+  # TODO OFFLINE: These have moved to client-side render
 
-    get :index
-    assert_select 'a[href=http://test.host/redeemprizes]', 0
-  end
+  # test "do not show prize link if you don't have a prize" do
+  #   sign_in create(:teacher)
 
-  test "do show prize link when you already have a prize" do
-    teacher = create(:teacher)
-    sign_in teacher
-    teacher.teacher_prize = TeacherPrize.create!(prize_provider_id: 8, code: 'fake')
+  #   get :index
+  #   assert_select 'a[href=http://test.host/redeemprizes]', 0
+  # end
 
-    get :index
-    assert_select 'a[href=http://test.host/redeemprizes]'
-  end
+  # test "do show prize link when you already have a prize" do
+  #   teacher = create(:teacher)
+  #   sign_in teacher
+  #   teacher.teacher_prize = TeacherPrize.create!(prize_provider_id: 8, code: 'fake')
+
+  #   get :index
+  #   assert_select 'a[href=http://test.host/redeemprizes]'
+  # end
 
   test 'health_check sets no cookies' do
     get :health_check

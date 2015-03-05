@@ -22,22 +22,22 @@
       - if current_user.age.nil?
         = render partial: 'layouts/age_interstitial'
       :javascript
-        window.user_info = {
-          id: #{current_user.id},
-          username: "#{h(current_user.short_name)}",
-          age: "#{current_user.age}",
-          admin: #{current_user.admin?},
-          teacher: #{current_user.teacher?},
-          student: #{current_user.student?},
-          teacher_prize: "#{current_user.teacher_prize}",
-          bonus_prize: "#{current_user.teacher_bonus_prize}",
+        window.user_info = #{JSON.pretty_generate({
+          id: current_user.id,
+          username: h(current_user.short_name),
+          age: current_user.age,
+          admin: current_user.admin?,
+          teacher: current_user.teacher?,
+          student: current_user.student?,
+          teacher_prize: current_user.teacher_prize,
+          bonus_prize: current_user.teacher_bonus_prize,
           actions: {
-            dashboard: "#{teacher_dashboard_url}",
-            settings: "#{edit_user_registration_url}",
-            prizes: "#{my_prizes_url}",
-            signout: "#{destroy_user_session_url}"
+            dashboard: teacher_dashboard_url,
+            settings: edit_user_registration_url,
+            prizes: my_prizes_url,
+            signout: destroy_user_session_url
           }
-        };
+        })};
 
 
     .wrapper{style: ('background-color: #ffffff' if @embed)}

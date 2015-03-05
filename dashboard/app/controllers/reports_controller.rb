@@ -41,8 +41,8 @@ SQL
     script
   end
 
-  def find_script_level(script)
-    script_level = script.get_script_level_by_stage_and_position params[:stage_id], params[:level_id]
+  def find_script_level(script, p)
+    script_level = script.get_script_level_by_stage_and_position p[:stage_id], p[:level_id]
     raise ActiveRecord::RecordNotFound unless script_level
     script_level
   end
@@ -118,7 +118,7 @@ SQL
 
   def user_progress
     script = find_script(params)
-    script_level = find_script_level(script)
+    script_level = find_script_level(script, params)
 
     level = script_level.level
     game = script_level.level.game
