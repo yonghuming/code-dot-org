@@ -40,7 +40,7 @@
 
 
     .wrapper{style: ('background-color: #ffffff' if @embed)}
-      = render partial: 'layouts/header' if !(@embed)
+      = render partial: 'layouts/header' unless @embed
       - page = yield
       - if @full_width
         .full_container{style: ('padding: 0px;' if @no_padding)}
