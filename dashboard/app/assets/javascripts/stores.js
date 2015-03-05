@@ -177,6 +177,11 @@
       return UserInfoStore.__super__.constructor.apply(this, arguments);
     }
 
+    function loadCurrentUser() {
+      // For now, the current user's info is always pre-loaded in the page if logged in
+      this.save(window.user_info);
+    }
+
     return UserInfoStore;
   })(UIStore);
 

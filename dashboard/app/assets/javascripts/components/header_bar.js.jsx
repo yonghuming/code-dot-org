@@ -7,14 +7,15 @@ components.HeaderBar = React.createClass({
     var P = this.props || {};
     var state = this.state || {};
 
+    var user = P.user || {}
+    var script = P.script || {}
     var thisLevel = P.level || {};
     var progress = P.progress || {};
-    var script = thisLevel.script || {};
     var stage = thisLevel.stage || {};
     var level = thisLevel.level || {};
 
-    // Don't render the progress buttons unless we are initialized with a script
-    if (!script)
+    // Don't render the progress buttons unless we are initialized with a stage
+    if (!stage)
       return;
 
     // This is a bit of a hack.  Level.level.id gets overwritten when blockly initializes, so it's been cached in another
@@ -48,7 +49,7 @@ components.HeaderBar = React.createClass({
     if (progress.trophies) {
       trophyLink = (
           <span className="header_trophy_link" onClick={this.onTrophyClick}>
-            <div className="header_text">{dashboard.i18n.trophies}</div>
+            <div className="header_text">{I18N.trophies}</div>
             <div className="header_status_bar current_trophies">{progress.trophies.current}</div>
             <div className="header_text max_trophies">{progress.trophies.of + ' ' + progress.trophies.max}</div>
           </span>
@@ -62,10 +63,10 @@ components.HeaderBar = React.createClass({
 
       if (state.popped) {
         arrow = <div className="header_popup_link_glyph">&#x25B2;</div>; // ▲
-        label = dashboard.i18n.less;
+        label = I18N.less;
       } else {
         arrow = <div className="header_popup_link_glyph">&#x25BC;</div>; // ▼
-        label = dashboard.i18n.more;
+        label = I18N.more;
       }
 
       popupToggle = (
@@ -79,7 +80,7 @@ components.HeaderBar = React.createClass({
     // Popup stage navigation
     var headerPopup;
     if (state.popped)
-      headerPopup = <components.HeaderPopup script_id={stage.script_id} progress={progress} selected={level_id} jumpToTrophies={state.jumpToTrophies} onShow={this.showPopup} />;
+      headerPopup = <components.HeaderPopup user={user} script={script} progress={progress} selected={level_id} jumpToTrophies={state.jumpToTrophies} onShow={this.showPopup} />;
 
     return (
         <div>
@@ -119,6 +120,18 @@ components.HeaderBar = React.createClass({
       popped: !!show,
       jumpToTrophies: show == 'trophies'
     });
+
+    if (!!show) {
+      var P = this.props || {};
+      var thisLevel = P.level || {};
+      var stage = thisLevel.stage || {};
+
+      // Ask the script store to load a particular script.
+      window.scriptStore.load({
+        script_id: stage.script_id
+      });
+    }
+
   },
 
   onTrophyClick: function(ev) {

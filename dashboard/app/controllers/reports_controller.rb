@@ -113,7 +113,7 @@ SQL
     if params['jsonp']
       expires_in 10000, public: true  # TODO: Real static asset caching
     end
-    render :json => JSON.pretty_generate(s), :callback => params['jsonp']
+    render :json => s, :callback => params['jsonp']
   end
 
   def user_progress
@@ -282,7 +282,7 @@ SQL
     if params['jsonp']
       expires_in 10000, public: true  # TODO: Real static asset caching
     end
-    render :json => JSON.pretty_generate(reply), :callback => params['jsonp']
+    render :json => reply, :callback => params['jsonp']
   end
 
 

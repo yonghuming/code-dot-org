@@ -14,8 +14,8 @@ components.LevelContainer = React.createClass({
         <div id="appcontainer">
           <div className="loading" />
           <div className="slow_load">
-            <div>{dashboard.i18n.slow_loading}</div>
-            <a href="javascript: location.reload();">{dashboard.i18n.try_reloading}</a>
+            <div>{I18N.slow_loading}</div>
+            <a href="javascript: location.reload();">{I18N.try_reloading}</a>
           </div>
         </div>
     );
@@ -30,7 +30,7 @@ components.LevelContainer = React.createClass({
     }, 10000);
 
     // When the levelStore gets data, update blockly
-    window.levelStore.subscribe(this.onNewLevel.bind(this));
+    window.levelStore.subscribe(this.onNewLevel); // React.createClass auto-binds
   },
 
   onNewLevel: function(data) {

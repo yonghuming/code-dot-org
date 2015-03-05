@@ -1,4 +1,4 @@
-// HeaderPopup: script="" progress={} selected=id onShow=fn
+// HeaderPopup: user={} script={} progress={} selected=id onShow=fn
 // + scriptStore
 components.HeaderPopup = React.createClass({
   getInitialState: function() {
@@ -7,27 +7,17 @@ components.HeaderPopup = React.createClass({
     };
   },
 
-  componentDidMount: function() {
-    window.scriptStore.subscribe(TEMP_UPDATE.bind(this));
-    window.userInfoStore.subscribe(TEMP_UPDATE.bind(this));
-
-    // Ask the script store to load a particular script.
-    window.scriptStore.load({
-      script_id: this.props.script_id
-    });
-  },
-
   render: function() {
     var cs = React.addons.classSet;
     var P = this.props || {};
 
+    var user = P.user || {};
+    var script = P.script || {};
     var progress = P.progress || {};
     var levelProgress = progress.levels || {};
-    var script = window.scriptStore.value;
-    var user = window.userInfoStore.value || {};
 
     var body;
-    if (!script) {
+    if (!script.stages) {
       body = <div className="loading" />;
     } else {
 
@@ -37,7 +27,7 @@ components.HeaderPopup = React.createClass({
         if (stage.lesson_plan_html_url && user.teacher) {
           lessonPlan = (
               <div className="stage-lesson-plan-link">
-                <a href={stage.lesson_plan_html_url}>{dashboard.i18n.view_lesson_plan}</a>
+                <a href={stage.lesson_plan_html_url}>{I18N.view_lesson_plan}</a>
               </div>
           );
         }
@@ -142,7 +132,7 @@ components.HeaderPopup = React.createClass({
         trophies = (
             <div id="trophies">
               <div style={blocked}>
-                <h4>{dashboard.i18n.nav.popup.mastery}</h4>
+                <h4>{I18N.nav.popup.mastery}</h4>
                 <table style={{ maxWidth: 290 }}>
                   {trophy_progress}
                 </table>
@@ -167,14 +157,14 @@ components.HeaderPopup = React.createClass({
     return (
         <div className="header_popup">
           <div className="header_popup_header">
-            <span>{dashboard.i18n.nav.popup.progress}</span>
+            <span>{I18N.nav.popup.progress}</span>
             <div className="header_text" style={style}>{progress.linesOfCodeText}</div>
           </div>
           <div className="header_popup_body">
             {body}
           </div>
           <div className="header_popup_footer">
-            <div className="header_popup_close" onClick={this.handleClose}>{dashboard.i18n.nav.popup.close}</div>
+            <div className="header_popup_close" onClick={this.handleClose}>{I18N.nav.popup.close}</div>
           </div>
         </div>
     );

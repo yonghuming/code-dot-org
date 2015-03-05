@@ -10,15 +10,15 @@ components.ReferenceArea = React.createClass({
     if (level.solutionPath && (user.admin || user.teacher)) {
       solutionLink = (
           <div className="solution_link">
-            <a href={level.solutionPath}>{dashboard.i18n.reference_area.teacher}</a>
+            <a href={level.solutionPath}>{I18N.reference_area.teacher}</a>
           </div>
       );
     }
 
     var relatedVideos = [];
     if (level.relatedVideos) {
-      relatedVideos.push(<p key="title" className="help_title">{dashboard.i18n.reference_area.teacher}</p>);
-      relatedVideos.push(<p key="subtitle" className="help_subtitle">{dashboard.i18n.reference_area.subtitle}</p>);
+      relatedVideos.push(<p key="title" className="help_title">{I18N.reference_area.teacher}</p>);
+      relatedVideos.push(<p key="subtitle" className="help_subtitle">{I18N.reference_area.subtitle}</p>);
 
       for (var i = 0; i < level.relatedVideos.length; i++) {
         var video = level.relatedVideos[i];

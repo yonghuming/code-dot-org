@@ -1,3 +1,8 @@
+// Build the components namespace.
+window.components = {};
+window.dashboard = {};
+
+
 // New private scope -- a lot of this is boilerplate for class structures, taken from coffeescript
 (function() {
   var __extends = function(child, parent) { for (var key in parent) { if ({}.hasOwnProperty.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -722,5 +727,162 @@
   window.UIFrame = UIFrame;
   window.BlocklyApp = BlocklyApp;
   window.UnpluggedApp = UnpluggedApp;
+
+}).call(this);
+
+
+
+// TODO:
+window.I18N = {
+  trophies: "<%= I18n.t(:trophies) %>",
+  less: "<%= I18n.t(:less) %>",
+  more: "<%= I18n.t(:more) %>",
+  slow_loading: "<%= I18n.t(:slow_loading) %>",
+  try_reloading: "<%= I18n.t(:try_reloading) %>",
+  lesson_plan: "<%= I18n.t(:lesson_plan) %>",
+  pdf_download: "<%= I18n.t(:pdf_download) %>",
+  video_coming_soon: "<%= I18n.t('video_coming_soon') %>",
+  download_coming_soon: "<%= I18n.t('download_coming_soon') %>",
+  view_lesson_plan: "<%= I18n.t('view_lesson_plan') %>",
+  next_stage: "<%= I18n.t(:next_stage) %>",
+  nav: {
+    popup: {
+      mastery: "<%= I18n.t('nav.popup.mastery') %>",
+      progress: "<%= I18n.t('nav.popup.progress') %>",
+      close: "<%= I18n.t('nav.popup.close') %>"
+    },
+    user: {
+      classroom: "<%= I18n.t('nav.user.classroom') %>",
+      stats: "<%= I18n.t('nav.user.stats') %>",
+      settings: "<%= I18n.t('nav.user.settings') %>",
+      prizes: "<%= I18n.t('nav.user.prizes') %>",
+      logout: "<%= I18n.t('nav.user.logout') %>",
+      signin: "<%= I18n.t('nav.user.signin') %>",
+      label: "<%= I18n.t('nav.user.label', username: '***') %>"
+    }
+  },
+  progress: {
+    not_started: "<%= I18n.t('progress.not_started') %>",
+    in_progress: "<%= I18n.t('progress.in_progress') %>",
+    completed_too_many_blocks: "<%= I18n.t('progress.completed_too_many_blocks') %>",
+    completed_perfect: "<%= I18n.t('progress.completed_perfect') %>",
+    assessment: "<%= I18n.t('progress.assessment') %>"
+  },
+  reference_area: {
+    teacher: "<%= I18n.t('reference_area.teacher') %>",
+    subtitle: "<%= I18n.t('reference_area.subtitle') %>"
+  },
+  video: {
+    download: "<%= I18n.t('video.download') %>"
+  }
+};
+
+
+
+
+
+
+
+
+
+
+// New private scope
+(function() {
+
+  var WatchedUpdate = function() {
+    // TODO: Investigate why this is sometimes called before the component has mounted.
+    // I noticed a mention of a related bug in React 0.12, so it might not be our fault.
+    if (this._lifeCycleState == "UNMOUNTED")
+      return;
+
+    this.setState({
+      version: (this.state || {}).version++
+    });
+  };
+
+  // This is a wrapper to create a NEW component that watches some Stores and renders a component
+  // using the values from those stores as properties.
+  // TODO: formalize its location/usage
+  Watching = function(component, stores) {
+    return component.Watching = React.createClass({
+      componentDidMount: function() {
+        this.onStoreChanged = WatchedUpdate.bind(this);
+
+        for (var key in stores) {
+          var store = (stores[key] || this.props[key + "Store"]);
+          if (!store || !store.subscribe) {
+            delete stores[key];
+            continue;
+          }
+
+          stores[key] = store;
+          store.subscribe( this.onStoreChanged );
+        }
+      },
+
+      componentDidUnmount: function() {
+        for (var key in stores) {
+          stores[key].unsubscribe( this.onStoreChanged );
+        }
+      },
+
+      render: function() {
+        var props = React.__spread( {}, this.props);
+        for (var key in stores) {
+          props[key] = stores[key].value;
+        }
+
+        return React.createElement(component, props);
+      }
+
+    });
+  };
+
+  // If $(el) exists, render a Watching component into it
+  function Render(el, component, props) {
+    var c = Watching(component, props);
+    el = $(el);
+    if (el.length) {
+      React.render(React.createElement(c), el[0]);
+    }
+  }
+
+  $(document).ready(function() {
+    var el;
+
+    window.levelStore = new LevelStore();
+    window.scriptStore = new ScriptStore();
+    window.userProgressStore = new UserProgressStore();
+    window.userInfoStore = new UserInfoStore();
+
+    // Boot up the frame.
+    window.Frame = new UIFrame();
+    Frame.init();
+    window.userInfoStore.loadCurrentUser();
+
+    // Create components that are attached at known locations on the screen
+
+    Render('.header_middle', components.HeaderBar, {
+      user: window.userInfoStore,
+      script: window.scriptStore,
+      level: window.levelStore,
+      progress: window.userProgressStore
+    });
+
+    Render('.header_right', components.HeaderActions, {
+      user: window.userInfoStore,
+      level: window.levelStore
+    });
+
+    Render('#reference_area', components.ReferenceArea, {
+      user: window.userInfoStore,
+      level: window.levelStore
+    });
+
+    Render('#application', components.LevelContainer, {
+      user: window.userInfoStore
+    });
+
+  });
 
 }).call(this);
