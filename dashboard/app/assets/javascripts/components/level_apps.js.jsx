@@ -199,7 +199,9 @@
     }
 
     $.extend(BlocklyApp.prototype, {
-      startBlockly: function() {
+      startBlockly: function(dom) {
+        this.containerId = dom.id;
+
         var _this = this;
         this.loadAssets().then(function() {
           window[_this.app + 'Main'](_this);
