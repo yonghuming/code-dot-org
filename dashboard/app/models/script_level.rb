@@ -40,9 +40,8 @@ class ScriptLevel < ActiveRecord::Base
   end
 
   def end_of_stage?
-    return stage.script_levels.to_a.last == self if stage
-    return true if !next_progression_level
-    return (level.game_id != next_progression_level.level.game_id)
+    stage ? stage.script_levels.to_a.last == self :
+      next_progression_level && (level.game_id != next_progression_level.level.game_id)
   end
 
   def stage_position_str
@@ -77,5 +76,4 @@ class ScriptLevel < ActiveRecord::Base
     @@script_level_map ||= ScriptLevel.includes([{level: [:game, :concepts]}, :script]).index_by(&:id)
     @@script_level_map[id]
   end
-
 end
