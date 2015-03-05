@@ -9,7 +9,7 @@ components.LevelContainer = React.createClass({
 
     // If the level has loaded, display it
     if (app instanceof UnpluggedApp)
-      return <components.UnpluggedLevel user={this.props.user} stage={app.stage} level={app.level} app={app} />;
+      return <components.UnpluggedLevel user={this.props.user} stage={app.stage} level={app} app={app} />;
     else if (app instanceof BlocklyApp)
       return <div key="blockly" id="appcontainer" />;
 
@@ -63,6 +63,8 @@ components.LevelContainer = React.createClass({
     // Determine which level app to render
     switch (opts.app) {
       case 'unplugged':
+        opts.stage = data.stage;
+
         this.setState({
           app: new UnpluggedApp(opts)
         });
