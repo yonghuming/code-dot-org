@@ -1,9 +1,9 @@
-// UnpluggedLevel user={} level={} stage={} app={}
+// UnpluggedLevel user={} app={}
 components.UnpluggedLevel = React.createClass({
   render: function() {
     var P = this.props || {};
-    var level = P.level;
-    var stage = P.stage || {};
+    var level = P.app;
+    var stage = level.stage || {};
 
     if (!level)
       return false;
@@ -65,7 +65,7 @@ components.UnpluggedLevel = React.createClass({
     if (el.length) {
       // TODO: Is the video ever anything but 800px?  (page_width was coming from server)
       el.html('');
-      el.append(createVideoWithFallback(this.props.level.video, 800, 800 / (16 / 9)))
+      el.append(createVideoWithFallback(this.props.app.video, 800, 800 / (16 / 9)))
     }
   },
 
@@ -75,7 +75,7 @@ components.UnpluggedLevel = React.createClass({
     // Some of these parameters may not be necessary.
     app.onAttempt({
       app: 'unplug',
-      level: this.props.level.level_num,
+      level: this.props.app.level_num,
       pass: true,
       result: true,
       testResult: 100,
