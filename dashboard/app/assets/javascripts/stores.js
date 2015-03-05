@@ -20,7 +20,7 @@
     // Get the value of this store
     UIStore.prototype.value = function () {
       return this.value;
-    }
+    };
 
     // When this store changes, notify via callback(data)
     UIStore.prototype.subscribe = function (callback) {
