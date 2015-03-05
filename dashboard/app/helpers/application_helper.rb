@@ -191,13 +191,11 @@ module ApplicationHelper
   end
 
   def playlab_freeplay_path
-    level = playlab_freeplay_level(@script)
-    script_stage_script_level_path(level[0], level[1], level[2])
+    script_stage_script_level_path(*is_k1? ? ['course1', 16, 6] : ['playlab', 1, 10])
   end
 
   def artist_freeplay_path
-    level = artist_freeplay_level(@script)
-    script_stage_script_level_path(level[0], level[1], level[2])
+    script_stage_script_level_path(*is_k1? ? ['course1', 18, 10] : ['artist', 1, 10])
   end
   
   def script_certificate_image_url(user, script)
