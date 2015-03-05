@@ -71,7 +71,9 @@ components.LevelContainer = React.createClass({
         break;
 
       case 'multi':
+      case 'Multi':
       case 'match':
+      case 'Match':
         // TODO OFFLINE: Convert these level types
         break;
 
