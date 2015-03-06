@@ -1,35 +1,36 @@
 // LevelContainer user={}
 components.LevelContainer = React.createClass({
-  getInitialState: function() {
-    return { app: null };
+  getInitialState: function () {
+    return {app: null};
   },
 
-  render: function() {
+  render: function () {
     var app = this.state.app;
 
     // If the level has loaded, display it
-    if (app instanceof UnpluggedApp)
+    if (app instanceof UnpluggedApp) {
       return <components.UnpluggedLevel user={this.props.user} app={app} />;
-    else if (app instanceof BlocklyApp)
+    } else if (app instanceof BlocklyApp) {
       return <div key="blockly" id="appcontainer" />;
+    }
 
     // Otherwise display the loader-progress
     return (
-      <div id="appcontainer">
-        <div className="loading" />
-        <div className="slow_load">
-          <div>{I18N.slow_loading}</div>
-          <a href="javascript: location.reload();">{I18N.try_reloading}</a>
+        <div id="appcontainer">
+          <div className="loading" />
+          <div className="slow_load">
+            <div>{I18N.slow_loading}</div>
+            <a href="javascript: location.reload();">{I18N.try_reloading}</a>
+          </div>
         </div>
-      </div>
     );
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     var dom = this.getDOMNode();
 
     // Show the slow-loading warning if it takes more than 10 seconds to initialize
-    setTimeout(function() {
+    setTimeout(function () {
       $(dom).find('.slow_load').show();
     }, 10000);
 
@@ -37,7 +38,7 @@ components.LevelContainer = React.createClass({
     window.levelStore.subscribe(this.onNewLevel); // React.createClass auto-binds
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     var app = this.state.app;
 
     // BlocklyApp is not implemented as a React component so we have to do something a bit tricky
@@ -47,7 +48,7 @@ components.LevelContainer = React.createClass({
     }
   },
 
-  onNewLevel: function(data) {
+  onNewLevel: function (data) {
     var opts = data.level;
 
     // Create .scriptPath that's used for tracking metrics on a live URL

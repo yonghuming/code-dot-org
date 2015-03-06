@@ -1,19 +1,16 @@
 // HeaderPopup: user={} script={} progress={} selected=id onShow=fn
 // + scriptStore
 components.HeaderPopup = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       jumpToTrophies: this.props.jumpToTrophies  // props is the initial state
     };
   },
 
-  render: function() {
-    var cs = React.addons.classSet;
-    var P = this.props || {};
-
-    var user = P.user || {};
-    var script = P.script || {};
-    var progress = P.progress || {};
+  render: function () {
+    var user = this.props.user || {};
+    var script = this.props.script || {};
+    var progress = this.props.progress || {};
     var levelProgress = progress.levels || {};
 
     var body;
@@ -21,7 +18,7 @@ components.HeaderPopup = React.createClass({
       body = <div className="loading" />;
     } else {
 
-      var stages = $.map(script.stages || [], function(stage) {
+      var stages = $.map(script.stages || [], (function (stage) {
         var lessonPlan;
 
         if (stage.lesson_plan_html_url && user.teacher) {
@@ -32,7 +29,7 @@ components.HeaderPopup = React.createClass({
           );
         }
 
-        var levels = $.map(stage.levels, function(level, index) {
+        var levels = $.map(stage.levels, (function (level, index) {
           var status = levelProgress[level.id] || {};
 
           var href = Frame.linkTo({
@@ -52,7 +49,7 @@ components.HeaderPopup = React.createClass({
           var classes1 = {
             'puzzle_outer_level': true,
             'puzzle_outer_assessment': level.kind == 'assessment',
-            'puzzle_outer_current': level.id == P.selected,
+            'puzzle_outer_current': level.id == this.props.selected,
             'last': index === stage.levels.length - 1
           };
 
@@ -63,14 +60,14 @@ components.HeaderPopup = React.createClass({
 
           return (
               <div className="level" key={level.position}>
-                <span className={cs(classes1)}>
-                  <a className={cs(classes2)} href={href}>
+                <span className={React.addons.classSet(classes1)}>
+                  <a className={React.addons.classSet(classes2)} href={href}>
                     { contents }
                   </a>
                 </span>
               </div>
           );
-        });
+        }).bind(this));
 
         return (
             <div className="game-group" key={stage.position}>
@@ -83,26 +80,28 @@ components.HeaderPopup = React.createClass({
               </div>
             </div>
         );
-      });
+      }).bind(this));
 
       var stages_key;
-      if (stages.length)
+      if (stages.length) {
         stages_key = <components.HeaderPopupKey />;
+      }
 
       var trophies;
       if (script.trophies) {
-        var trophy_progress = P.progress.trophies || {};
+        var trophy_progress = this.props.progress.trophies || {};
 
-        var centered = { textAlign: 'center' };
-        trophy_progress = $.map(script.trophies, function(trophy) {
+        var centered = {textAlign: 'center'};
+        trophy_progress = $.map(script.trophies, (function (trophy) {
 
           var completion = trophy_progress[trophy.id];
-          if (!completion)
+          if (!completion) {
             completion = 0;
+          }
 
-          var bronze = Math.max(0, Math.min(100, Math.floor( completion * 10.0 / trophy.bronze) * 10));
-          var silver = Math.max(0, Math.min(100, Math.floor( (completion - trophy.bronze) * 10.0 / (trophy.silver - trophy.bronze)) * 10));
-          var gold = Math.max(0, Math.min(100, Math.floor( (completion - trophy.silver) * 10.0 / (trophy.gold - trophy.silver)) * 10));
+          var bronze = Math.max(0, Math.min(100, Math.floor(completion * 10.0 / trophy.bronze) * 10));
+          var silver = Math.max(0, Math.min(100, Math.floor((completion - trophy.bronze) * 10.0 / (trophy.silver - trophy.bronze)) * 10));
+          var gold = Math.max(0, Math.min(100, Math.floor((completion - trophy.silver) * 10.0 / (trophy.gold - trophy.silver)) * 10));
 
           return (
               <tr height="55px">
@@ -120,7 +119,7 @@ components.HeaderPopup = React.createClass({
                 </td>
               </tr>
           );
-        });
+        }).bind(this));
 
         var blocked = {
           display: 'inline-block',
@@ -133,7 +132,7 @@ components.HeaderPopup = React.createClass({
             <div id="trophies">
               <div style={blocked}>
                 <h4>{I18N.nav.popup.mastery}</h4>
-                <table style={{ maxWidth: 290 }}>
+                <table style={{maxWidth: 290}}>
                   {trophy_progress}
                 </table>
               </div>
@@ -170,19 +169,20 @@ components.HeaderPopup = React.createClass({
     );
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     if (this.state.jumpToTrophies) {
       var el = $('#trophies');
       if (el.length) {
         var off = el.offset();
-        if (off)
+        if (off) {
           window.scrollTo(0, +off.top);
-        this.setState({ jumpToTrophies: false });
+        }
+        this.setState({jumpToTrophies: false});
       }
     }
   },
 
-  handleClose: function(ev) {
+  handleClose: function (ev) {
     this.props.onShow(false);
   }
 });

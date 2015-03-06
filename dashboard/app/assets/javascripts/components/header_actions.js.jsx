@@ -1,8 +1,7 @@
 components.HeaderActions = React.createClass({
-  render: function() {
+  render: function () {
     var cs = React.addons.classSet;
-    var P = this.props;
-    var level = P.level || {};
+    var level = this.props.level || {};
 
     var actions = [];
     if (level.actions) {
@@ -31,13 +30,13 @@ components.HeaderActions = React.createClass({
     return (
         <div>
           { actions }
-          <components.SignInButton user={P.user} />
+          <components.SignInButton user={this.props.user} />
         </div>
     );
 
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     // Register the QTIP for any header actions we created
     $('.header_actions > a').qtip({
       content: {

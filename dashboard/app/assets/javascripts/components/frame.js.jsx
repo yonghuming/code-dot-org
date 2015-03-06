@@ -1,10 +1,8 @@
 // It's not really a JSX yet.
-
-// New private scope
-(function() {
+(function () {
 
   // class UIFrame
-  var UIFrame = (function() {
+  var UIFrame = (function () {
 
     var loaded_resources = {};
 
@@ -16,10 +14,10 @@
     window.RESOURCE = function (json) {
       loaded_resources[Math.random(1)] = json;
     };
-    $.ajaxTransport( "static", function( s ) {
+    $.ajaxTransport("static", function (s) {
       var script, callback, result;
       return {
-        send: function( _, complete ) {
+        send: function (_, complete) {
 
           // If needed, we could create a way to store or simulate postbacks.
           if (s.type != 'GET') {
@@ -27,50 +25,47 @@
           }
 
           if (s.isStaticResource) {
-            s.dataTypes[ 0 ] = "json";
+            s.dataTypes[0] = "json";
             s.url += "?jsonp=RESOURCE";
           } else {
-            s.dataTypes[ 0 ] = "script";
+            s.dataTypes[0] = "script";
           }
 
           script = jQuery("<script>", {
             charset: s.scriptCharset,
             src: s.url
-          }).on(
-            "load error",
-            callback = function( evt ) {
-              // If we remove this, we can't debug it.
-              // script.remove();
-              callback = null;
+          }).on("load error", callback = function (evt) {
+            // If we remove this, we can't debug it.
+            // script.remove();
+            callback = null;
 
-              if (s.isStaticResource) {
-                // TODO: are there asynchronicity issues here?
-                var json;
-                for (var key in loaded_resources) {
-                  json = loaded_resources[key];
-                  delete loaded_resources[key];
-                  break;
-                }
-
-                result = { json: json };
+            if (s.isStaticResource) {
+              // TODO: are there asynchronicity issues here?
+              var json;
+              for (var key in loaded_resources) {
+                json = loaded_resources[key];
+                delete loaded_resources[key];
+                break;
               }
 
-              if ( evt ) {
-                complete( evt.type === "error" ? 404 : 200, evt.type, result);
-              }
+              result = {json: json};
             }
-          );
-          document.head.appendChild( script[ 0 ] );
+
+            if (evt) {
+              complete(evt.type === "error" ? 404 : 200, evt.type, result);
+            }
+          });
+          document.head.appendChild(script[0]);
         },
-        abort: function() {
-          if ( callback ) {
+        abort: function () {
+          if (callback) {
             callback();
           }
         }
       };
     });
 
-    var rootUrl = function(url) {
+    var rootUrl = function (url) {
       var root = url.match(/^\w+:\/\/[^\/]*/);
       return root[0];
     };
@@ -78,7 +73,7 @@
     function UIFrame() {
     }
 
-    UIFrame.prototype.init = function() {
+    UIFrame.prototype.init = function () {
       // Static environment ignores BASE HREF and looks for resources in the directory of this script.
       this.isStatic = this.detectStatic();
 
@@ -113,17 +108,19 @@
     // http://stackoverflow.com/a/21152762/7104
     // Decode query parameters
     UIFrame.prototype.queryParams = function (url) {
-      if (this._qp)
+      if (this._qp) {
         return this._qp;
+      }
 
       url = url || location.search;
-      if (!url)
+      if (!url) {
         return null;
+      }
 
       var qd = {};
-      url.substr(1).split("&").forEach(function(item) {
+      url.substr(1).split("&").forEach(function (item) {
         var k = item.split("=")[0],
-          v = decodeURIComponent(item.split("=")[1]); 
+            v = decodeURIComponent(item.split("=")[1]);
         (k in qd) ? qd[k].push(v) : qd[k] = [v]
       });
 
@@ -135,21 +132,22 @@
     // requests to a file:// URL (because that will fail and prevent other scripts from running.)
     // It also forces the CSRF token into all requests, although there are other ways to do
     // that once we get all the $.ajax() calls under control.
-    UIFrame.prototype.patchCSRF = function() {
+    UIFrame.prototype.patchCSRF = function () {
       var token = $('meta[name=csrf-token]').attr('content');
 
       var send = XMLHttpRequest.prototype.send;
-      XMLHttpRequest.prototype.send = function(data) {
-        if (this.skip)
+      XMLHttpRequest.prototype.send = function (data) {
+        if (this.skip) {
           return;
+        }
         return send.apply(this, arguments);
       };
 
       var open = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function(data) {
+      XMLHttpRequest.prototype.open = function (data) {
         var resp = open.apply(this, arguments);
 
-        if (arguments[1].substr(0,5) == 'file:') {
+        if (arguments[1].substr(0, 5) == 'file:') {
           console.error('skipping ' + arguments[1]);
           this.skip = true;
         }
@@ -164,24 +162,27 @@
 
     // Create an absolute path to a resource.  The second parameter is temporary - only used in a static
     // site that still has references to a dynamic server.
-    UIFrame.prototype.getAbsolutePath = function(path, rootUrl) {
-      if (path[0] == '/')
+    UIFrame.prototype.getAbsolutePath = function (path, rootUrl) {
+      if (path[0] == '/') {
         return (rootUrl || this.rootUrl) + path;
+      }
       return (rootUrl || this.baseUrl) + "/" + path;
     };
 
-    UIFrame.prototype.baseURI = function() {
+    UIFrame.prototype.baseURI = function () {
       // Check expected property.
-      if (document.baseURI)
+      if (document.baseURI) {
         return document.baseURI;
+      }
       var base = document.getElementsByTagName('base');
-      if (base.length > 0)
+      if (base.length > 0) {
         return base[0].href;
+      }
       return document.URL;
     };
 
     // Eventually we could support various modes of offline (disconnects, etc)
-    UIFrame.prototype.detectStatic = function() {
+    UIFrame.prototype.detectStatic = function () {
       // file: URL is static AND single-page
       if (window.location.protocol == 'file:') {
         this.isSinglePage = true;
@@ -189,18 +190,19 @@
       }
 
       // react.studio.code.org is static but not single-page
-      if (window.location.host.substr(0,6) == 'react.')
+      if (window.location.host.substr(0, 6) == 'react.') {
         return true;
+      }
 
       /* Enable this to test static on your local dev machine.
-      if (window.location.port == 3000)
-        return true;
-      */
+       if (window.location.port == 3000)
+       return true;
+       */
       return false;
     };
 
     // Load the script at a given URL and return a promise that resolves when it has executed
-    UIFrame.prototype.load = function(ajax, resolveStatic) {
+    UIFrame.prototype.load = function (ajax, resolveStatic) {
       if (this.isStatic) {
         ajax.type = ajax.type || 'GET';
 
@@ -210,16 +212,19 @@
           var staticPath = resolveStatic(ajax.data) + ".js";
 
           if (this.isSinglePage) // TODO: also isStatic, when we have a static asset building pipeline
+          {
             ajax.url = "assets/" + staticPath;
-          else
+          } else {
             ajax.url = this.getAbsolutePath(staticPath, this.serverRoot);
+          }
 
           delete ajax.data; // Static resources can't do anything with params
           ajax.cache = true;  // Static resources will have long cache times
           ajax.isStaticResource = true;  // Expect a JSONP resoponse
         } else {
-          if (ajax.dataType != 'script')
+          if (ajax.dataType != 'script') {
             console.error("Request for " + ajax.url + " has no static handler.")
+          }
         }
 
         // All resources must be loaded via <SCRIPT> tag when offline.
@@ -234,7 +239,7 @@
     };
 
     // Write to an API - assumes a POST that returns JSON
-    UIFrame.prototype.save = function(ajax) {
+    UIFrame.prototype.save = function (ajax) {
       ajax.method = ajax.method || "POST";
       ajax.dataType = ajax.dataType || "json";
       ajax.contentType = ajax.contentType || "application/x-www-form-urlencoded";
@@ -243,7 +248,7 @@
     };
 
     // Load the script at a given URL and return a promise that resolves when it has executed
-    UIFrame.prototype.loadSource = function(url) {
+    UIFrame.prototype.loadSource = function (url) {
       return this.load({
         url: url,
         dataType: "script",
@@ -252,7 +257,7 @@
     };
 
     // Loads the given app stylesheet.
-    UIFrame.prototype.loadStyle = function(url) {
+    UIFrame.prototype.loadStyle = function (url) {
       $('<link>', {
         rel: 'stylesheet',
         type: 'text/css',
@@ -261,7 +266,7 @@
     };
 
     // Return a route to a link.  This interface will be improved when we use a real router.
-    UIFrame.prototype.linkTo = function(route, forceOnline) {
+    UIFrame.prototype.linkTo = function (route, forceOnline) {
       if (Array.isArray(route)) {  // IE9+
         route = {
           script: route[0],
@@ -276,8 +281,9 @@
 
       // Calculate route for script levels
       if (route.script) {
-        if (this.isSinglePage && !forceOnline)
-          return window.location.pathname + "?" + $.param( route, true );
+        if (this.isSinglePage && !forceOnline) {
+          return window.location.pathname + "?" + $.param(route, true);
+        }
 
         return "/s/" + route.script + "/stage/" + route.stage + "/puzzle/" + route.level;
       }
@@ -297,17 +303,18 @@
       return null;
     };
 
-    UIFrame.prototype.goTo = function(route) {
+    UIFrame.prototype.goTo = function (route) {
       var url = this.linkTo(route);
-      if (!url)
+      if (!url) {
         return false;
+      }
 
       window.location.href = url;
       return true;
     };
 
     // Pass one or more arguments, they'll be string-concat'd
-    UIFrame.prototype.assetUrl = function() {
+    UIFrame.prototype.assetUrl = function () {
       var url = Array.prototype.join.call(arguments, '');
 
       return this.getAbsolutePath("/assets/" + url);
@@ -318,4 +325,4 @@
 
   window.UIFrame = UIFrame;
 
-}).call(this);
+})();

@@ -142,6 +142,7 @@ Dashboard::Application.routes.draw do
   get '/join(/:section_code)', to: 'followers#student_user_new', as: 'student_user_new'
   post '/join/:section_code', to: 'followers#student_register', as: 'student_register'
 
+  post '/milestone/:user_id', to: 'activities#milestone', as: 'milestone_opts'
   post '/milestone/:user_id/level/:level_id', :to => 'activities#milestone', :as => 'milestone_level'
   post '/milestone/:user_id/:script_level_id', :to => 'activities#milestone', :as => 'milestone'
 
@@ -171,11 +172,6 @@ Dashboard::Application.routes.draw do
   resources :zendesk_session, only: [:index]
 
   post '/sms/send', to: 'sms#send_to_phone', as: 'send_to_phone'
-
-  #get '/dashboardapi/:anything', to: redirect('/api/%{anything}')
-  #post '/dashboardapi/:anything', to: redirect('/api/%{anything}')
-  #put '/dashboardapi/:anything', to: redirect('/api/%{anything}')
-  #delete '/dashboardapi/:anything', to: redirect('/api/%{anything}')
 
   module OPS
     API = 'api'

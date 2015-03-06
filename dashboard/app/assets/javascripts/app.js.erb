@@ -1,14 +1,32 @@
 // Build the components namespace.
 window.components = {};
 
-// New private scope
-(function() {
+Function.prototype.__extends = function (parent) {
+  var child = this;
+  for (var key in parent) {
+    if (parent.hasOwnProperty(key)) {
+      child[key] = parent[key];
+    }
+  }
+  function Constructor() {
+    this.constructor = child;
+  }
 
-  var WatchedUpdate = function() {
+  Constructor.prototype = parent.prototype;
+  child.prototype = new Constructor();
+  child.__super__ = parent.prototype;
+  return child;
+};
+
+// New private scope
+(function () {
+
+  var WatchedUpdate = function () {
     // TODO: Investigate why this is sometimes called before the component has mounted.
     // I noticed a mention of a related bug in React 0.12, so it might not be our fault.
-    if (this._lifeCycleState == "UNMOUNTED")
+    if (this._lifeCycleState == "UNMOUNTED") {
       return;
+    }
 
     this.setState({
       version: (this.state || {}).version++
@@ -18,9 +36,9 @@ window.components = {};
   // This is a wrapper to create a NEW component that watches some Stores and renders a component
   // using the values from those stores as properties.
   // TODO: formalize its location/usage
-  Watching = function(component, stores) {
+  Watching = function (component, stores) {
     return component.Watching = React.createClass({
-      componentDidMount: function() {
+      componentDidMount: function () {
         this.onStoreChanged = WatchedUpdate.bind(this);
 
         for (var key in stores) {
@@ -31,18 +49,18 @@ window.components = {};
           }
 
           stores[key] = store;
-          store.subscribe( this.onStoreChanged );
+          store.subscribe(this.onStoreChanged);
         }
       },
 
-      componentDidUnmount: function() {
+      componentDidUnmount: function () {
         for (var key in stores) {
-          stores[key].unsubscribe( this.onStoreChanged );
+          stores[key].unsubscribe(this.onStoreChanged);
         }
       },
 
-      render: function() {
-        var props = React.__spread( {}, this.props);
+      render: function () {
+        var props = React.__spread({}, this.props);
         for (var key in stores) {
           props[key] = stores[key].value;
         }
@@ -62,7 +80,7 @@ window.components = {};
     }
   }
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     var el;
 
     window.levelStore = new LevelStore();
@@ -100,10 +118,7 @@ window.components = {};
 
   });
 
-}).call(this);
-
-
-
+})();
 
 // TODO:
 window.I18N = {

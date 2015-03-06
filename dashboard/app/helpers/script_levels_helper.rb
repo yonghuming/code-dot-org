@@ -64,7 +64,6 @@ module ScriptLevelsHelper
 
     summary = {
       id: sl.level.id,
-      sl_id: sl.id,   # This should probably be removed, it's currently used to calculate the milestone_url (/milestone/:user/:script_level_id)
       position: sl.position,
       kind: kind,
       title: sl.level_display_text

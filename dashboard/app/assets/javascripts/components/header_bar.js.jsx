@@ -1,28 +1,27 @@
 components.HeaderBar = React.createClass({
-  getInitialState: function() {
-    return { popped: false };
+  getInitialState: function () {
+    return {popped: false};
   },
 
-  render: function() {
-    var P = this.props || {};
-    var state = this.state || {};
-
-    var user = P.user || {}
-    var script = P.script || {}
-    var thisLevel = P.level || {};
-    var progress = P.progress || {};
+  render: function () {
+    var user = this.props.user || {};
+    var script = this.props.script || {};
+    var thisLevel = this.props.level || {};
+    var progress = this.props.progress || {};
     var stage = thisLevel.stage || {};
     var level = thisLevel.level || {};
 
     // Don't render the progress buttons unless we are initialized with a stage
-    if (!stage)
+    if (!stage) {
       return;
+    }
 
     // This is a bit of a hack.  Level.level.id gets overwritten when blockly initializes, so it's been cached in another
     // location until we can fix that.
     var level_id = level.level_id;
-    if (!level_id && level.level)
+    if (!level_id && level.level) {
       level_id = level.level.id;
+    }
 
     // Title
     var titleBox;
@@ -61,7 +60,7 @@ components.HeaderBar = React.createClass({
     if (stage.script_stages > 1 || progress.trophies) {
       var arrow, label;
 
-      if (state.popped) {
+      if (this.state.popped) {
         arrow = <div className="header_popup_link_glyph">&#x25B2;</div>; // ▲
         label = I18N.less;
       } else {
@@ -79,8 +78,9 @@ components.HeaderBar = React.createClass({
 
     // Popup stage navigation
     var headerPopup;
-    if (state.popped)
-      headerPopup = <components.HeaderPopup user={user} script={script} progress={progress} selected={level_id} jumpToTrophies={state.jumpToTrophies} onShow={this.showPopup} />;
+    if (this.state.popped) {
+      headerPopup = <components.HeaderPopup user={user} script={script} progress={progress} selected={level_id} jumpToTrophies={this.state.jumpToTrophies} onShow={this.showPopup} />;
+    }
 
     return (
         <div>
@@ -98,7 +98,7 @@ components.HeaderBar = React.createClass({
     );
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function () {
     if (this.state.popped) {
       // Catch clicks anywhere else and close the popup
       $(document).on('click', this.onModalClick);
@@ -107,7 +107,7 @@ components.HeaderBar = React.createClass({
     }
   },
 
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       popped: false,
       jumpToTrophies: false
@@ -115,7 +115,7 @@ components.HeaderBar = React.createClass({
   },
 
   // Three possible arguments: true, false, or "trophies" (the last one autoscrolls the page to the bottom of the popup)
-  showPopup: function(show) {
+  showPopup: function (show) {
     this.setState({
       popped: !!show,
       jumpToTrophies: show == 'trophies'
@@ -123,7 +123,7 @@ components.HeaderBar = React.createClass({
 
     if (!!show) {
       var P = this.props || {};
-      var thisLevel = P.level || {};
+      var thisLevel = this.props.level || {};
       var stage = thisLevel.stage || {};
 
       // Ask the script store to load a particular script.
@@ -134,16 +134,16 @@ components.HeaderBar = React.createClass({
 
   },
 
-  onTrophyClick: function(ev) {
+  onTrophyClick: function (ev) {
     this.showPopup("trophies");
     ev.stopPropagation();
   },
-  onTogglePopup: function(ev) {
+  onTogglePopup: function (ev) {
     this.showPopup(!this.state.popped);
     ev.stopPropagation();
   },
 
-  onModalClick: function(ev) {
+  onModalClick: function (ev) {
     var el;
 
     // Clicks outside the popup close it

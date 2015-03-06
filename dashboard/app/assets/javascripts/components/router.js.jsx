@@ -1,16 +1,14 @@
 // It's not really a JSX, but eventually it would be.
-
-// New private scope -- a lot of this is boilerplate for class structures, taken from coffeescript
-(function() {
-  var __extends = function(child, parent) { for (var key in parent) { if ({}.hasOwnProperty.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+(function () {
 
   // class UIRouter: this is an incredibly simple router with our routes baked into it.
   // This will be completely replaced when we choose a router.
-  var UIRouter = (function() {
+  var UIRouter = (function () {
 
-    function UIRouter() { }
+    function UIRouter() {
+    }
 
-    UIRouter.prototype.route = function() {
+    UIRouter.prototype.route = function () {
       var re, parts, url = window.location.pathname;
 
       // Route: /:script_name/:level_position
@@ -41,10 +39,10 @@
       // Right now, the static is a fixed route
       if (window.Frame.isSinglePage) {
         var params = Frame.queryParams() || {
-          script: '20-hour',
-          stage: 3,  // TODO: Default route
-          level: 3
-        };
+              script: '20-hour',
+              stage: 3,  // TODO: Default route
+              level: 3
+            };
 
         this.script_name = params.script;
         levelStore.load({
@@ -65,4 +63,4 @@
 
   window.UIRouter = UIRouter;
 
-}).call(this);
+})();

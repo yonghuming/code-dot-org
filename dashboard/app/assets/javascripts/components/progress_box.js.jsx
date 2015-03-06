@@ -1,17 +1,15 @@
 // ProgressBox: stage={} selected=id progress={}
 components.ProgressBox = React.createClass({
-  render: function() {
-    var cs = React.addons.classSet;
-    var P = this.props || {};
-
-    var stage = P.stage || {};
+  render: function () {
+    var stage = this.props.stage || {};
     var levels = stage.levels || [];
-    if (!levels.length)
+    if (!levels.length) {
       return false;
+    }
 
-    var levelProgress = P.progress.levels || {};
+    var levelProgress = this.props.progress.levels || {};
 
-    var els = $.map(levels, function(level, index) {
+    var els = $.map(levels, (function (level, index) {
       var status = levelProgress[level.id] || {};
 
       var href = Frame.linkTo({
@@ -23,7 +21,7 @@ components.ProgressBox = React.createClass({
       var classes1 = {
         'puzzle_outer_level': level.kind != 'assessment',
         'puzzle_outer_assessment': level.kind == 'assessment',
-        'puzzle_outer_current': level.id == P.selected,
+        'puzzle_outer_current': level.id == this.props.selected,
         'last': index === levels.length - 1
       };
 
@@ -34,11 +32,11 @@ components.ProgressBox = React.createClass({
       classes2[status.status || 'not_tried'] = true;
 
       return (
-          <div className={cs(classes1)} key={level.id}>
-            <a className={cs(classes2)} href={href}>{level.title}</a>
+          <div className={React.addons.classSet(classes1)} key={level.id}>
+            <a className={React.addons.classSet(classes2)} href={href}>{level.title}</a>
           </div>
-        );
-    });
+      );
+    }).bind(this));
     return <div className="progress_container">{els}</div>;
   }
 });

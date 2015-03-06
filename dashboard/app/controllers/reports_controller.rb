@@ -49,7 +49,7 @@ SQL
 
   def header_stats
     @script = find_script(params)
-    render file: 'shared/_user_stats', layout: false, locals: { user: current_user }
+    render file: 'shared/_user_stats', layout: false, locals: {user: current_user}
   end
 
   def summarize_stage(script, stage, levels)

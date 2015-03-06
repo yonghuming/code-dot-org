@@ -24,6 +24,9 @@ class ActivitiesController < ApplicationController
     elsif params[:level_id]
       # TODO: do we need a cache_find for Level like we have for ScriptLevel?
       @level = Level.find(params[:level_id].to_i)
+    elsif params[:script_name] && params[:stage] && params[:puzzle]
+      @script_level = Script.get_from_cache(params[:script_name]).get_script_level_by_stage_and_position(params[:stage], params[:puzzle])
+      @level = @script_level.level
     end
 
     if params[:program]
