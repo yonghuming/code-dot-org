@@ -94,7 +94,11 @@
         delete data.onComplete;
 
         var user = window.userInfoStore.value || {id: 0};
-        var milestone_url = Frame.getAbsolutePath('/milestone/' + user.id + '/' + this.level.sl_id);
+        var milestone_url = Frame.getAbsolutePath('/milestone/' + user.id + '?' + $.param({
+          script_name: this.stage.script_name,
+          stage: this.stage.position,
+          puzzle: this.level.position
+        }));
 
         // Make a POST request to the milestone API
         if (this.report) {
