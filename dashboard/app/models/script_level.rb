@@ -72,7 +72,7 @@ class ScriptLevel < ActiveRecord::Base
     elsif assessment
       kind = 'assessment'
     else
-      kind = 'blockly'
+      kind = 'puzzle'
     end
 
     summary = {
@@ -88,6 +88,7 @@ class ScriptLevel < ActiveRecord::Base
         summary[:previous] = [previous_level.stage.position, previous_level.position]
       end
     else
+      # This is the first level in the script
       summary[:previous] = false
     end
 
@@ -99,7 +100,7 @@ class ScriptLevel < ActiveRecord::Base
         # This is the final level in the script
         summary[:next] = false
         if script.wrapup_video
-          summary[:wrapupVideo] = video_info(script.wrapup_video)
+          summary[:wrapupVideo] = script.wrapup_video.summarize
         end
       end
     end

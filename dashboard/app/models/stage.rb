@@ -19,38 +19,51 @@ class Stage < ActiveRecord::Base
 
   def localized_title
     if script.stages.many?
-      I18n.t('stage_number', number: position) + ': ' + I18n.t("script.name.#{script.name}.name")
+      I18n.t('stage_number', number: position) + ': ' + I18n.t("data.script.name.#{script.name}.#{name}")
     else # script only has one stage/game, use the script name
-      I18n.t "script.name.#{script.name}.title"
+      I18n.t "data.script.name.#{script.name}.title"
     end
   end
 
   def localized_name
     if script.stages.many?
-      I18n.t "script.name.#{script.name}.name"
+      I18n.t "data.script.name.#{script.name}.#{name}"
     else
-      I18n.t "script.name.#{script.name}.title"
+      I18n.t "data.script.name.#{script.name}.title"
     end
+  end
+
+  def lesson_plan_html_url
+    "#{lesson_plan_base_url}/Teacher"
+  end
+
+  def lesson_plan_pdf_url
+    "#{lesson_plan_base_url}/Teacher.pdf"
+  end
+
+  def lesson_plan_base_url
+    CDO.code_org_url "/curriculum/#{script.name}/#{position}"
   end
 
   def summarize
     stage_data = {
+        script_id: script.id,
+        script_name: script.name,
+        script_stages: script.stages.to_a.count,
         id: id,
         position: position,
-        script_name: script.name,
-        script_id: script.id,
-        script_stages: script.stages.to_a.count,
         name: localized_name,
         title: localized_title
     }
 
     if script.has_lesson_plan?
-      stage_data[:lesson_plan_html_url] = lesson_plan_html_url(self)
-      stage_data[:lesson_plan_pdf_url] = lesson_plan_pdf_url(self)
+      stage_data[:lesson_plan_html_url] = lesson_plan_html_url
+      stage_data[:lesson_plan_pdf_url] = lesson_plan_pdf_url
     end
 
     if script.hoc?
-      stage_data[:finishText] = t('nav.header.finished_hoc')
+      stage_data[:finishLink] = script.hoc_finish_url
+      stage_data[:finishText] = I18n.t('nav.header.finished_hoc')
     end
 
     levels = script.script_levels.to_a.select{|sl| sl.stage_id == id}

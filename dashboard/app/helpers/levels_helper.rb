@@ -53,7 +53,7 @@ module LevelsHelper
 
     seen_videos.add(autoplay_video.key)
     session[:videos_seen] = seen_videos
-    video_info(autoplay_video)
+    autoplay_video.summarize
   end
 
   def available_callouts
@@ -140,7 +140,7 @@ module LevelsHelper
   def blockly_options(local_assigns={})
     if @script_level
       # Use values from properties json when available (use String keys instead of Symbols for consistency)
-      level = summarize_script_level(@script_level).stringify_keys.merge(@level.properties)
+      level = @script_level.summarize.stringify_keys.merge(@level.properties)
       level['stage'] = @script_level.stage.position
     else
       # requires @level
