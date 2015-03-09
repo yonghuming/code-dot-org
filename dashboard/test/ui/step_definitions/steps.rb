@@ -33,7 +33,7 @@ When /^I close the popup$/ do
   modal && button && button.click
 end
 
-When /^I wait to see "([.#])([^"]*)"$/ do |selector_symbol, name|
+When /^I wait to see (?:an? )?"([.#])([^"]*)"$/ do |selector_symbol, name|
   selection_criteria = selector_symbol == '#' ? {:id => name} : {:class => name}
   wait = Selenium::WebDriver::Wait.new(:timeout => 60 * 2)
   wait.until { @browser.find_element(selection_criteria) }
@@ -50,9 +50,9 @@ Then /^I do not see "([.#])([^"]*)"$/ do |selector_symbol, name|
   elements.length.should eq 0
 end
 
-When /^I wait until element "([^"]*)" has text "([^"]*)"$/ do |selector, text|
+When /^I wait until (?:element )?"([^"]*)" (?:has|contains) text "([^"]*)"$/ do |selector, text|
   wait = Selenium::WebDriver::Wait.new(:timeout => 60 * 2)
-  wait.until { element_has_text(selector, text) }
+  wait.until { @browser.execute_script("return $(\"#{selector}\").text();").include? text }
 end
 
 When /^I wait until element "([^"]*)" is visible$/ do |selector|
@@ -65,8 +65,8 @@ Then /^check that I am on "([^"]*)"$/ do |url|
   @browser.current_url.should eq url
 end
 
-When /^I wait for (\d+) seconds?$/ do |seconds|
-  sleep seconds.to_i
+When /^I wait for (\d+(?:\.\d*)?) seconds?$/ do |seconds|
+  sleep seconds.to_f
 end
 
 When /^I submit$/ do
@@ -86,6 +86,16 @@ end
 
 When /^I press "([^"]*)"$/ do |button|
   @button = @browser.find_element(:id, button)
+  @button.click
+end
+
+When /^I press the first "([^"]*)" element$/ do |selector|
+  @element = @browser.find_element(:css, selector)
+  @element.click
+end
+
+When /^I press the "([^"]*)" button$/ do |buttonText|
+  @button = @browser.find_element(:css, "input[value='#{buttonText}']")
   @button.click
 end
 
@@ -153,6 +163,10 @@ When /^I hold key "([^"]*)"$/ do |keyCode|
   @browser.execute_script(script)
 end
 
+When /^I type "([^"]*)" into "([^"]*)"$/ do |inputText, selector|
+  @browser.execute_script("$('" + selector + "').val('" + inputText + "')");
+end
+
 Then /^I should see title "([^"]*)"$/ do |title|
   @browser.title.should eq title
 end
@@ -189,11 +203,23 @@ Then /^element "([^"]*)" is hidden$/ do |selector|
   visible.should eq false
 end
 
+def has_class(selector, className)
+  @browser.execute_script("return $('#{selector}').hasClass('#{className}')")
+end
+
+Then /^element "([^"]*)" has class "([^"]*)"$/ do |selector, className|
+  has_class(selector, className).should eq true
+end
+
+Then /^element "([^"]*)" (?:does not|doesn't) have class "([^"]*)"$/ do |selector, className|
+  has_class(selector, className).should eq false
+end
+
 def is_disabled(selector)
   @browser.execute_script("return $('#{selector}')[0].getAttribute('disabled') !== null || $('#{selector}').hasClass('disabled')")
 end
 
-Then /^element "([^"]*)" is not disabled$/ do |selector|
+Then /^element "([^"]*)" is (?:enabled|not disabled)$/ do |selector|
   is_disabled(selector).should eq false
 end
 

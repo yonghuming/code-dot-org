@@ -21,20 +21,18 @@ module ScriptLevelsHelper
         script_completion_redirect(script_level.script)
   end
 
+  def wrapup_video_then_redirect_response(wrapup_video, redirect)
+    video_info_response = wrapup_video.summarize
+    video_info_response[:redirect] = redirect
+    video_info_response
+  end
+
   def script_completion_redirect(script)
     if script.hoc?
-      hoc_finish_url(script)
+      script.hoc_finish_url
     else
       root_path
     end
-  end
-
-  def twenty_hour_next_url
-    script_level_path(:show, twenty_hour_path_params)
-  end
-
-  def twenty_hour_path_params
-    {script_id: Script.twenty_hour_script.id, chapter: 'next'}
   end
 
   def tracking_pixel_url(script)
@@ -45,52 +43,4 @@ module ScriptLevelsHelper
     end
   end
 
-  def hoc_finish_url(script)
-    if script.name == Script::HOC_2013_NAME
-      CDO.code_org_url '/api/hour/finish'
-    else
-      CDO.code_org_url "/api/hour/finish/#{script.name}"
-    end
-  end
-
-  def summarize_script_level(sl)
-    if sl.level.unplugged?
-      kind = 'unplugged'
-    elsif sl.assessment
-      kind = 'assessment'
-    else
-      kind = 'blockly'
-    end
-
-    summary = {
-      id: sl.level.id,
-      position: sl.position,
-      kind: kind,
-      title: sl.level_display_text
-    }
-
-    # Add a previous pointer if it's not the obvious (level-1)
-    if sl.previous_level
-      if sl.previous_level.stage.position != sl.stage.position
-        summary[:previous] = [ sl.previous_level.stage.position, sl.previous_level.position ]
-      end
-    else
-      summary[:previous] = false
-    end
-
-    # Add a next pointer if it's not the obvious (level+1)
-    if sl.end_of_stage?
-      if sl.next_level
-        summary[:next] = [ sl.next_level.stage.position, sl.next_level.position ]
-      else
-        # This is the final level in the script
-        summary[:next] = false
-        if (sl.script.wrapup_video)
-          summary[:wrapupVideo] = video_info(sl.script.wrapup_video)
-        end
-      end
-    end
-
-    summary
-  end
 end

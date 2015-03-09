@@ -10,6 +10,7 @@ class ReportsController < ApplicationController
   before_action :set_script
   include LevelSourceHintsHelper
   include LevelsHelper
+  include UsersHelper
 
   def user_stats
     @user = User.find(params[:user_id])
@@ -30,15 +31,9 @@ SQL
   def find_script(p)
     name_or_id = p[:script_name]
     name_or_id = p[:script_id] if name_or_id.nil?
+    return if name_or_id.nil?
 
-    if name_or_id.match(/\A\d+\z/)
-      script = Script.find(name_or_id.to_i)
-    else
-      script = Script.find_by_name(name_or_id)
-    end
-    raise ActiveRecord::RecordNotFound unless script
-
-    script
+    Script.get_from_cache name_or_id
   end
 
   def find_script_level(script, p)
@@ -52,78 +47,24 @@ SQL
     render file: 'shared/_user_stats', layout: false, locals: {user: current_user}
   end
 
-  def summarize_stage(script, stage, levels)
-
-    stage_data = {
-      id: stage.id,
-      position: stage.position,
-      script_name: script.name,
-      script_id: script.id,
-      script_stages: script.stages.to_a.count,
-      name: stage_name(script, stage),
-      title: stage_title(script, stage)
-    }
-
-    if script.has_lesson_plan?
-      stage_data[:lesson_plan_html_url] = lesson_plan_html_url(stage)
-      stage_data[:lesson_plan_pdf_url] = lesson_plan_pdf_url(stage)
-    end
-
-    if script.hoc?
-      stage_data[:finishText] = t('nav.header.finished_hoc')
-    end
-
-    unless levels
-      levels = script.script_levels.to_a.select{ |sl| sl.stage_id == stage.id }
-    end
-
-    levels.sort_by { |sl| sl.position }
-    stage_data[:levels] = levels.map { |sl| summarize_script_level(sl) }
-
-    stage_data
-  end
-
   def get_script
     script = find_script(params)
-
-    s = {
-      id: script.id,
-      name: script.name,
-      stages: []
-    }
-    if (script.trophies)
-      s[:trophies] = Concept.cached.map do |concept|
-        {
-          id: concept.name,
-          name: data_t('concept.description', concept.name),
-          bronze: Trophy::BRONZE_THRESHOLD,
-          silver: Trophy::SILVER_THRESHOLD,
-          gold: Trophy::GOLD_THRESHOLD
-        }
-      end
-    end
-
-    position = 0
-
-    levels = script.script_levels.group_by(&:stage)
-    levels.each_pair do |stage, sl_group|
-      s[:stages].push summarize_stage(script, stage, sl_group)
-    end
 
     if params['jsonp']
       expires_in 10000, public: true  # TODO: Real static asset caching
     end
-    render :json => s, :callback => params['jsonp']
+    render :json => script.summarize, :callback => params['jsonp']
   end
 
   def user_progress
     script = find_script(params)
     script_level = find_script_level(script, params)
+    stage = script_level.stage
 
     level = script_level.level
     game = script_level.level.game
 
-    stage_data = summarize_stage(script, script_level.stage, nil)
+    stage_data = stage.summarize
 
     # Copy these now because they will be modified during this routine, but the API caller needs the previous value
     if session[:callouts_seen]
@@ -138,7 +79,7 @@ SQL
       unplug_id = (level.type == 'Unplugged' ? level.name : game.name)
       level_data = {
         kind: 'unplugged',
-        level: summarize_script_level(script_level),
+        level: script_level.summarize,
         app: 'unplugged',
         title: try_t("data.unplugged.#{unplug_id}.title"),
         desc: try_t("data.unplugged.#{unplug_id}.desc")
@@ -156,14 +97,14 @@ SQL
 
       video = Video.find_by_key(try_t("data.unplugged.#{unplug_id}.video"))
       if video
-        level_data[:video] = video_info(video, false)
+        level_data[:video] = video.summarize(false)
       end
 
     elsif level.is_a?(DSLDefined)
       # TODO OFFLINE: partial "levels/#{level.class.to_s.underscore}"
       level_data = {
         kind: 'dsl',
-        level: summarize_script_level(script_level),
+        level: script_level.summarize,
         app: level.class.to_s
       }
     else
@@ -197,8 +138,8 @@ SQL
         {
           name: data_t('video.name', video.key),
           youtube_code: video.youtube_code,
-          data: video_info(video),
-          thumbnail_url: video_thumbnail_path(video)
+          data: video.summarize(language),
+          thumbnail_url: video.thumbnail_url
         }
       end
     end
@@ -229,66 +170,14 @@ SQL
       actions: actions
     }
 
-
     # USER-SPECIFIC DATA - should eventually move to its own callback?
-    if current_user
-      user_data = {
-        linesOfCode: current_user.total_lines,
-        linesOfCodeText: t('nav.popup.lines', lines: current_user.total_lines),
-        levels: {},
-        videos_seen: videos_seen,
-        callouts_seen: callouts_seen
-      }
-
-      # Get all user_levels
-      user_levels = current_user.levels_from_script(script)
-
-      user_levels.map do |sl|
-        completion_status, link = level_info(current_user, sl)
-        if completion_status != 'not_tried'
-          user_data[:levels][sl.level.id] = {
-            status: completion_status
-            # More info could go in here...
-          }
-        end
-      end
-
-      user_data[:disableSocialShare] = true if current_user.under_13?
-
-      if script.trophies
-        progress = current_user.progress(script)
-        concepts = current_user.concept_progress(script)
-
-        user_data[:trophies] = {
-          current: progress['current_trophies'],
-          of: t(:of),
-          max: progress['max_trophies']
-        }
-
-        concepts.each_pair do |concept, counts|
-          user_data[:trophies][concept.name] = counts[:current].to_f / counts[:max]
-        end
-
-      end
-
-      if params['jsonp']
-        expires_in 10000, public: true  # TODO: Real static asset caching
-      end
-      reply[:progress] = user_data
-    else
-      # TODO OFFLINE:  Session-based progress
-    end
+    reply[:progress] = summarize_user_progress script
 
     if params['jsonp']
       expires_in 10000, public: true  # TODO: Real static asset caching
     end
     render :json => reply, :callback => params['jsonp']
   end
-
-
-
-
-
 
   def prizes
     authorize! :read, current_user
