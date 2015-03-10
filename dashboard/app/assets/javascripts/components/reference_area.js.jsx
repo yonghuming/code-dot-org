@@ -30,7 +30,7 @@ components.ReferenceArea = React.createClass({
                 data-name={video.name}
                 data-src={video.src}
             >
-              <img className="video_thumbnail" src={ Frame.getAbsolutePath(video.thumbnail_url) } width={39 * 4.7} />
+              <img className="video_thumbnail" src={ Frame.getAbsolutePath(video.thumbnail) } width={39 * 4.7} />
               <div className="video_name">
                 <span>{video.name}</span>
               </div>
