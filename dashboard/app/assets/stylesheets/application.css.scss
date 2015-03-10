@@ -631,6 +631,25 @@ html, body {
   }
 
 
+  /* most puzzles are small dot */
+  .puzzle_outer_level,
+  .puzzle_outer_assessment {
+    line-height: 1px;
+    .level_link {
+      box-sizing: border-box;
+      min-width: 11px;
+      width: 11px;
+      height: 11px;
+      border-radius: 11px;
+      padding: 3px;
+      margin: 0px;
+      /* hack to hide the number: */
+      font-size: 0px;
+      color: transparent;
+      margin-right: 5px;
+    }
+  }
+
   /* current puzzle is a large dot */
   .puzzle_outer_current {
     .level_link {
@@ -651,25 +670,6 @@ html, body {
       padding-left: 10px;
       padding-right: 10px;
       width: auto;
-    }
-  }
-
-  /* most puzzles are small dot */
-  .puzzle_outer_level,
-  .puzzle_outer_assessment {
-    line-height: 1px;
-    .level_link {
-      box-sizing: border-box;
-      min-width: 11px;
-      width: 11px;
-      height: 11px;
-      border-radius: 11px;
-      padding: 3px;
-      margin: 0px;
-      /* hack to hide the number: */
-      font-size: 0px;
-      color: transparent;
-      margin-right: 5px;
     }
   }
 
