@@ -53,7 +53,7 @@ module LevelsHelper
 
     seen_videos.add(autoplay_video.key)
     session[:videos_seen] = seen_videos
-    autoplay_video.summarize unless params[:noautoplay]
+    autoplay_video.summarize
   end
 
   def available_callouts
