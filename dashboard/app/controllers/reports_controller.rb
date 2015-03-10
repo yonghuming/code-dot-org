@@ -134,14 +134,7 @@ SQL
     end
     level_data[:locale] = js_locale
     if !level.related_videos.nil? && !level.related_videos.empty?
-      level_data[:relatedVideos] = level.related_videos.map do |video|
-        {
-          name: data_t('video.name', video.key),
-          youtube_code: video.youtube_code,
-          data: video.summarize(language),
-          thumbnail_url: video.thumbnail_url
-        }
-      end
+      level_data[:relatedVideos] = level.related_videos.map { |video| video.summarize }
     end
 
     if script_level && script.show_report_bug_link?

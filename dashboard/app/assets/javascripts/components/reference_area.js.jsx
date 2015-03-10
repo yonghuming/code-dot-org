@@ -24,11 +24,11 @@ components.ReferenceArea = React.createClass({
 
         // React may eventually offer an easier way to add multiple data- attributes...
         relatedVideos.push(
-            <a key={video.data.key} href="#" className="video_link" onClick={this.onVideoClick}
-                data-download={video.data.download}
-                data-key={video.data.key}
-                data-name={video.data.name}
-                data-src={video.data.src}
+            <a key={video.key} href="#" className="video_link" onClick={this.onVideoClick}
+                data-download={video.download}
+                data-key={video.key}
+                data-name={video.name}
+                data-src={video.src}
             >
               <img className="video_thumbnail" src={ Frame.getAbsolutePath(video.thumbnail_url) } width={39 * 4.7} />
               <div className="video_name">

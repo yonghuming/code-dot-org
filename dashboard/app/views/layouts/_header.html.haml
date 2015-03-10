@@ -19,20 +19,3 @@
             - if @edit_blocks
               .header_level{style:'font-size: 250%; line-height: 125%;'} Editing #{@edit_blocks.humanize}
           .header_right
-<<<<<<< HEAD
-=======
-            %span.freeplay_links{style: 'display: none;'}
-              %a.header_status_bar.level_free_play{title: t('nav.header.free_play.playlab'), href: playlab_freeplay_path}
-                %i.fa.fa-rocket
-              %a.header_status_bar.level_free_play{title: t('nav.header.free_play.artist'), href: artist_freeplay_path}
-                %i.fa.fa-pencil
-            - if params[:controller] !~ /^sessions/
-              .header_button.header_user
-                = render partial: 'shared/user_header'
-
-- if @script_level
-  :javascript
-    //<![CDATA[
-    dashboard.buildHeader(#{@script_level.stage.summarize.to_json}, #{summarize_user_progress(@script_level.script).to_json}, #{@script_level.try(:level_id)});
-    //]]>
->>>>>>> api-changes
