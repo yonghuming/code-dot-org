@@ -3,12 +3,14 @@
 # controllers)
 
 class ReportsController < ApplicationController
-  before_filter :authenticate_user!, except: [:header_stats]
+  before_filter :authenticate_user!, except: [:header_stats, :user_progress, :get_script]
 
-  check_authorization except: [:header_stats, :students]
+  check_authorization except: [:header_stats, :students, :user_progress, :get_script]
 
   before_action :set_script
   include LevelSourceHintsHelper
+  include LevelsHelper
+  include UsersHelper
 
   def user_stats
     @user = User.find(params[:user_id])
@@ -25,7 +27,23 @@ order by ul.updated_at desc limit 2
 SQL
   end
 
+  # Find a script by name OR id, including someone who pased an ID into name.
+  def find_script(p)
+    name_or_id = p[:script_name]
+    name_or_id = p[:script_id] if name_or_id.nil?
+    return if name_or_id.nil?
+
+    Script.get_from_cache name_or_id
+  end
+
+  def find_script_level(script, p)
+    script_level = script.get_script_level_by_stage_and_position p[:stage_id], p[:level_id]
+    raise ActiveRecord::RecordNotFound unless script_level
+    script_level
+  end
+
   def header_stats
+    @script = find_script(params)
     render file: 'shared/_user_stats', layout: false, locals: {user: current_user}
   end
 
