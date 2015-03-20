@@ -130,7 +130,6 @@ class HomeControllerTest < ActionController::TestCase
   end
 
   # TODO OFFLINE:  These currently fail for all Continue links
-  
   Script.all.each do |script|
     next if script.hidden? # only test public facing scripts
     test "logged in user sees resume info and progress for course #{script.name}" do
