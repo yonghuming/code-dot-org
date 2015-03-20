@@ -9,6 +9,10 @@ class ScriptLevel < ActiveRecord::Base
 
   NEXT = 'next'
 
+  def script
+    Script.get_from_cache(script_id)
+  end
+
   # this is a temporary (request-scope) variable set by User.rb#levels_from_script to find the UserLevel
   # corresponding to this ScriptLevel for a specific user
   attr_accessor :user_level
@@ -29,7 +33,7 @@ class ScriptLevel < ActiveRecord::Base
 
   def valid_progression_level?
     return false if level.unplugged?
-    return false if stage.unplugged?
+    return false if stage && stage.unplugged?
     true
   end
 

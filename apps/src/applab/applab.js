@@ -6,7 +6,7 @@
  */
 
 'use strict';
-
+require('./mode-javascript_codeorg');
 var studioApp = require('../StudioApp').singleton;
 var commonMsg = require('../../locale/current/common');
 var applabMsg = require('../../locale/current/applab');
@@ -129,7 +129,7 @@ function adjustAppSizeStyles() {
         } else if (rules[j].media && childRules) {
           var changedChildRules = 0;
           var scale = scaleFactors[curScaleIndex];
-          for (var k = 0; k < childRules.length && changedChildRules < 3; k++) {
+          for (var k = 0; k < childRules.length && changedChildRules < 5; k++) {
             if (childRules[k].selectorText === "div#visualization.responsive") {
               // For this scale factor...
               // set the max-height and max-width for the visualization
@@ -140,6 +140,16 @@ function adjustAppSizeStyles() {
             } else if (childRules[k].selectorText === "div#visualizationColumn.responsive") {
               // set the max-width for the parent visualizationColumn
               childRules[k].style.cssText = "max-width: " +
+                  Applab.appWidth * scale + "px;";
+              changedChildRules++;
+            } else if (childRules[k].selectorText === "div#codeWorkspace") {
+              // set the left for the codeWorkspace
+              childRules[k].style.cssText = "left: " +
+                  Applab.appWidth * scale + "px;";
+              changedChildRules++;
+            } else if (childRules[k].selectorText === "html[dir='rtl'] div#codeWorkspace") {
+              // set the right for the codeWorkspace (RTL mode)
+              childRules[k].style.cssText = "right: " +
                   Applab.appWidth * scale + "px;";
               changedChildRules++;
             } else if (childRules[k].selectorText === "div#visualization.responsive > *") {
@@ -593,7 +603,8 @@ Applab.init = function(config) {
       blockUsed: undefined,
       idealBlockNumber: undefined,
       editCode: level.editCode,
-      blockCounterClass: 'block-counter-default'
+      blockCounterClass: 'block-counter-default',
+      hasDesignMode: true
     }
   });
 
@@ -637,7 +648,7 @@ Applab.init = function(config) {
         e.stop();
       });
     }
-    
+
     if (studioApp.share) {
       // automatically run in share mode:
       window.setTimeout(studioApp.runButtonClick.bind(studioApp), 0);
@@ -655,6 +666,7 @@ Applab.init = function(config) {
   config.noButtonsBelowOnMobileShare = true;
 
   config.dropletConfig = dropletConfig;
+  config.pinWorkspaceToBottom = true;
 
   // Since the app width may not be 400, set this value in the config to
   // ensure that the viewport is set up properly for scaling it up/down
@@ -699,6 +711,10 @@ Applab.init = function(config) {
     if (viewDataButton) {
       dom.addClickTouchEvent(viewDataButton, Applab.onViewData);
     }
+    var designModeButton = document.getElementById('designModeButton');
+    dom.addClickTouchEvent(designModeButton, Applab.onDesignModeButton);
+    var codeModeButton = document.getElementById('codeModeButton');
+    dom.addClickTouchEvent(codeModeButton, Applab.onCodeModeButton);
   }
 
   user = {applabUserId: config.applabUserId};
@@ -833,6 +849,10 @@ studioApp.runButtonClick = function() {
   studioApp.reset(false);
   studioApp.attempts++;
   Applab.execute();
+
+  // Show view data button now that channel id is available.
+  var viewDataButton = document.getElementById('viewDataButton');
+  viewDataButton.style.display = "inline-block";
 
   if (level.freePlay && !studioApp.hideSource) {
     var shareCell = document.getElementById('share-cell');
@@ -1151,8 +1171,34 @@ Applab.encodedFeedbackImage = '';
 
 Applab.onViewData = function() {
   window.open(
-    '//' + getPegasusHost() + '/private/edit-csp-app/' + AppStorage.tempEncryptedAppId,
+    '//' + getPegasusHost() + '/private/edit-csp-app/' + AppStorage.getChannelId(),
     '_blank');
+};
+
+Applab.onDesignModeButton = function() {
+  studioApp.resetButtonClick();
+  Applab.toggleDesignMode(true);
+};
+
+Applab.onCodeModeButton = function() {
+  Applab.toggleDesignMode(false);
+};
+
+Applab.toggleDesignMode = function(enable) {
+  var codeModeHeaders = document.getElementById('codeModeHeaders');
+  codeModeHeaders.style.display = enable ? 'none' : 'block';
+  var designModeHeaders = document.getElementById('designModeHeaders');
+  designModeHeaders.style.display = enable ? 'block' : 'none';
+
+  var codeTextbox = document.getElementById('codeTextbox');
+  codeTextbox.style.display = enable ? 'none' : 'block';
+  var designModeBox = document.getElementById('designModeBox');
+  designModeBox.style.display = enable ? 'block' : 'none';
+
+  var gameButtons =  document.getElementById('gameButtons');
+  gameButtons.style.display = enable ? 'none' : 'block';
+  var designModeButtons = document.getElementById('designModeButtons');
+  designModeButtons.style.display = enable ? 'block' : 'none';
 };
 
 Applab.onPuzzleComplete = function() {

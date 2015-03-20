@@ -33,6 +33,7 @@ class ActivitiesController < ApplicationController
       begin
         share_failure = find_share_failure(params[:program])
       rescue OpenURI::HTTPError => share_checking_error
+        # If WebPurify fails, the program will be allowed
       end
 
       unless share_failure
@@ -41,7 +42,7 @@ class ActivitiesController < ApplicationController
       end
     end
 
-    if params[:lines] 
+    if params[:lines]
       params[:lines] = params[:lines].to_i
       params[:lines] = 0 if params[:lines] < MIN_LINES_OF_CODE
       params[:lines] = MAX_LINES_OF_CODE if params[:lines] > MAX_LINES_OF_CODE
@@ -155,7 +156,7 @@ class ActivitiesController < ApplicationController
 
     begin
        trophy_check(current_user) if passed
-    rescue Exception => e
+    rescue StandardError => e
        Rails.logger.error "Error updating trophy exception: #{e.inspect}"
     end
   end
@@ -221,15 +222,15 @@ class ActivitiesController < ApplicationController
   end
 
   def log_milestone(level_source, params)
-    log_string = "Milestone Report:"
-    if (current_user || session.id)
-      log_string += "\t#{(current_user ? current_user.id.to_s : ("s:" + session.id))}"
+    log_string = 'Milestone Report:'
+    if current_user || session.id
+      log_string += "\t#{(current_user ? current_user.id.to_s : ('s:' + session.id))}"
     else
       log_string += "\tanon"
     end
     log_string += "\t#{request.remote_ip}\t#{params[:app]}\t#{params[:level]}\t#{params[:result]}" +
                   "\t#{params[:testResult]}\t#{params[:time]}\t#{params[:attempt]}\t#{params[:lines]}"
-    log_string += level_source.try(:id) ? "\t#{level_source.id.to_s}" : "\t"
+    log_string += level_source.try(:id) ? "\t#{level_source.id}" : "\t"
     log_string += "\t#{request.user_agent}"
 
     milestone_logger.info log_string

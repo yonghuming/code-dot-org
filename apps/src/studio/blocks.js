@@ -1557,10 +1557,14 @@ exports.install = function(blockly, blockInstallOptions) {
           .appendTitle(msg.saySprite());
       }
       if (options.restrictedDialog) {
-        var dropdown = new blockly.FieldDropdown(
-          [[msg.saySpriteChoices_1(), msg.saySpriteChoices_1()],
-           [msg.saySpriteChoices_2(), msg.saySpriteChoices_2()],
-           [msg.saySpriteChoices_3(), msg.saySpriteChoices_3()]]);
+        var functionArray = [];
+        var numRestrictedSayChoices = 59;
+        for (var i = 0; i < numRestrictedSayChoices; i++) {
+          var functionElement = functionArray[i] = [];
+          var string = msg["saySpriteChoices_" + i]();
+          functionElement[0] = functionElement[1] = string;
+        }
+        var dropdown = new blockly.FieldDropdown(functionArray);
         this.appendDummyInput().appendTitle(dropdown, 'VALUE');
       }
       else if (options.params) {
@@ -1962,23 +1966,6 @@ exports.install = function(blockly, blockInstallOptions) {
   generator.functional_background_dropdown = function () {
     // returns the sprite index
     return this.getTitleValue('BACKGROUND');
-  };
-
-  /**
-   * functional_sqrt
-   */
-  blockly.Blocks.functional_sqrt = {
-    helpUrl: '',
-    init: function() {
-      blockly.FunctionalBlockUtils.initTitledFunctionalBlock(this, 'sqrt', 'Number', [
-        { name: 'ARG1', type: 'Number' }
-      ]);
-    }
-  };
-
-  generator.functional_sqrt = function() {
-    var arg1 = Blockly.JavaScript.statementToCode(this, 'ARG1', false) || 0;
-    return 'Math.sqrt(' + arg1 + ');';
   };
 
   /**

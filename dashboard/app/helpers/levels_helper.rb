@@ -34,6 +34,10 @@ module LevelsHelper
       @start_blocks ||=
         @level.try(:project_template_level).try(:start_blocks) ||
         @level.start_blocks
+
+      @code_functions ||=
+        @level.try(:project_template_level).try(:code_functions) ||
+        @level.code_functions
     end
   end
 
@@ -225,6 +229,18 @@ module LevelsHelper
       last_attempt
       is_project_level
       failure_message_override
+      show_clients_in_lobby
+      show_routers_in_lobby
+      show_add_router_button
+      show_add_packet_button
+      show_packet_size_control
+      default_packet_size_limit
+      show_tabs
+      default_tab_index
+      show_encoding_controls
+      default_enabled_encodings
+      show_dns_mode_control
+      default_dns_mode
     ).map{ |x| x.include?(':') ? x.split(':') : [x,x.camelize(:lower)]}]
     .each do |dashboard, blockly|
       # Select first valid value from 1. local_assigns, 2. property of @level object, 3. named instance variable, 4. properties json
@@ -348,11 +364,12 @@ module LevelsHelper
 
   def level_title
     if @script_level
-      script = if @script_level.script.flappy?
-        data_t 'game.name', @game.name
-      else
-        data_t_suffix 'script.name', @script_level.script.name, 'title'
-      end
+      script =
+        if @script_level.script.flappy?
+          data_t 'game.name', @game.name
+        else
+          data_t_suffix 'script.name', @script_level.script.name, 'title'
+        end
       stage = @script_level.name
       position = @script_level.position
       if @script_level.script.stages.many?
@@ -401,8 +418,8 @@ module LevelsHelper
 
   # Unique, consistent ID for a user of an applab app.
   def applab_user_id
-    app_id = "1337" # Stub value, until storage for app_id's is available.
+    channel_id = "1337" # Stub value, until storage for channel_id's is available.
     user_id = current_user ? current_user.id.to_s : session.id
-    Digest::SHA1.base64digest("#{app_id}:#{user_id}").tr('=', '')
+    Digest::SHA1.base64digest("#{channel_id}:#{user_id}").tr('=', '')
   end
 end

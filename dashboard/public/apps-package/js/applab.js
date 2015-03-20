@@ -16,7 +16,7 @@ window.applabMain = function(options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../appMain":5,"./applab":8,"./blocks":9,"./levels":14,"./skins":16}],16:[function(require,module,exports){
+},{"../appMain":5,"./applab":8,"./blocks":9,"./levels":14,"./skins":17}],17:[function(require,module,exports){
 /**
  * Load Skin for Applab.
  */
@@ -35,7 +35,7 @@ exports.load = function(assetUrl, id) {
   return skin;
 };
 
-},{"../skins":173}],14:[function(require,module,exports){
+},{"../skins":185}],14:[function(require,module,exports){
 /*jshint multistr: true */
 
 var msg = require('../../locale/current/applab');
@@ -66,14 +66,6 @@ levels.simple = {
 };
 
 levels.custom = {
-};
-
-levels.ec_simple = {
-  'freePlay': true,
-  'editCode': true,
-  'sliderSpeed': 0.95,
-  'appWidth': 320,
-  'appHeight': 480,
   'codeFunctions': {
     // UI Controls
     "onEvent": null,
@@ -163,6 +155,7 @@ levels.ec_simple = {
     "clearTimeout": null,
     "setInterval": null,
     "clearInterval": null,
+    "getTime": null,
 
     // Math
     "addOperator": null,
@@ -195,8 +188,17 @@ levels.ec_simple = {
     "functionParams_n": null,
     "callMyFunction": null,
     "callMyFunction_n": null,
+    "return": null,
   },
 };
+
+levels.ec_simple = utils.extend(levels.custom, {
+  'freePlay': true,
+  'editCode': true,
+  'sliderSpeed': 0.95,
+  'appWidth': 320,
+  'appHeight': 480,
+});
 
 // Functions in Advanced category currently disabled in all levels:
 /*
@@ -292,7 +294,7 @@ levels.full_sandbox =  {
    '<block type="when_run" deletable="false" x="20" y="20"></block>'
 };
 
-},{"../../locale/current/applab":221,"../block_utils":19,"../utils":219}],8:[function(require,module,exports){
+},{"../../locale/current/applab":233,"../block_utils":19,"../utils":231}],8:[function(require,module,exports){
 /**
  * CodeOrgApp: Applab
  *
@@ -301,7 +303,7 @@ levels.full_sandbox =  {
  */
 
 'use strict';
-
+require('./mode-javascript_codeorg');
 var studioApp = require('../StudioApp').singleton;
 var commonMsg = require('../../locale/current/common');
 var applabMsg = require('../../locale/current/applab');
@@ -424,7 +426,7 @@ function adjustAppSizeStyles() {
         } else if (rules[j].media && childRules) {
           var changedChildRules = 0;
           var scale = scaleFactors[curScaleIndex];
-          for (var k = 0; k < childRules.length && changedChildRules < 3; k++) {
+          for (var k = 0; k < childRules.length && changedChildRules < 5; k++) {
             if (childRules[k].selectorText === "div#visualization.responsive") {
               // For this scale factor...
               // set the max-height and max-width for the visualization
@@ -435,6 +437,16 @@ function adjustAppSizeStyles() {
             } else if (childRules[k].selectorText === "div#visualizationColumn.responsive") {
               // set the max-width for the parent visualizationColumn
               childRules[k].style.cssText = "max-width: " +
+                  Applab.appWidth * scale + "px;";
+              changedChildRules++;
+            } else if (childRules[k].selectorText === "div#codeWorkspace") {
+              // set the left for the codeWorkspace
+              childRules[k].style.cssText = "left: " +
+                  Applab.appWidth * scale + "px;";
+              changedChildRules++;
+            } else if (childRules[k].selectorText === "html[dir='rtl'] div#codeWorkspace") {
+              // set the right for the codeWorkspace (RTL mode)
+              childRules[k].style.cssText = "right: " +
                   Applab.appWidth * scale + "px;";
               changedChildRules++;
             } else if (childRules[k].selectorText === "div#visualization.responsive > *") {
@@ -888,7 +900,8 @@ Applab.init = function(config) {
       blockUsed: undefined,
       idealBlockNumber: undefined,
       editCode: level.editCode,
-      blockCounterClass: 'block-counter-default'
+      blockCounterClass: 'block-counter-default',
+      hasDesignMode: true
     }
   });
 
@@ -932,7 +945,7 @@ Applab.init = function(config) {
         e.stop();
       });
     }
-    
+
     if (studioApp.share) {
       // automatically run in share mode:
       window.setTimeout(studioApp.runButtonClick.bind(studioApp), 0);
@@ -950,6 +963,7 @@ Applab.init = function(config) {
   config.noButtonsBelowOnMobileShare = true;
 
   config.dropletConfig = dropletConfig;
+  config.pinWorkspaceToBottom = true;
 
   // Since the app width may not be 400, set this value in the config to
   // ensure that the viewport is set up properly for scaling it up/down
@@ -994,6 +1008,10 @@ Applab.init = function(config) {
     if (viewDataButton) {
       dom.addClickTouchEvent(viewDataButton, Applab.onViewData);
     }
+    var designModeButton = document.getElementById('designModeButton');
+    dom.addClickTouchEvent(designModeButton, Applab.onDesignModeButton);
+    var codeModeButton = document.getElementById('codeModeButton');
+    dom.addClickTouchEvent(codeModeButton, Applab.onCodeModeButton);
   }
 
   user = {applabUserId: config.applabUserId};
@@ -1128,6 +1146,10 @@ studioApp.runButtonClick = function() {
   studioApp.reset(false);
   studioApp.attempts++;
   Applab.execute();
+
+  // Show view data button now that channel id is available.
+  var viewDataButton = document.getElementById('viewDataButton');
+  viewDataButton.style.display = "inline-block";
 
   if (level.freePlay && !studioApp.hideSource) {
     var shareCell = document.getElementById('share-cell');
@@ -1446,8 +1468,34 @@ Applab.encodedFeedbackImage = '';
 
 Applab.onViewData = function() {
   window.open(
-    '//' + getPegasusHost() + '/private/edit-csp-app/' + AppStorage.tempEncryptedAppId,
+    '//' + getPegasusHost() + '/private/edit-csp-app/' + AppStorage.getChannelId(),
     '_blank');
+};
+
+Applab.onDesignModeButton = function() {
+  studioApp.resetButtonClick();
+  Applab.toggleDesignMode(true);
+};
+
+Applab.onCodeModeButton = function() {
+  Applab.toggleDesignMode(false);
+};
+
+Applab.toggleDesignMode = function(enable) {
+  var codeModeHeaders = document.getElementById('codeModeHeaders');
+  codeModeHeaders.style.display = enable ? 'none' : 'block';
+  var designModeHeaders = document.getElementById('designModeHeaders');
+  designModeHeaders.style.display = enable ? 'block' : 'none';
+
+  var codeTextbox = document.getElementById('codeTextbox');
+  codeTextbox.style.display = enable ? 'none' : 'block';
+  var designModeBox = document.getElementById('designModeBox');
+  designModeBox.style.display = enable ? 'block' : 'none';
+
+  var gameButtons =  document.getElementById('gameButtons');
+  gameButtons.style.display = enable ? 'none' : 'block';
+  var designModeButtons = document.getElementById('designModeButtons');
+  designModeButtons.style.display = enable ? 'block' : 'none';
 };
 
 Applab.onPuzzleComplete = function() {
@@ -2782,7 +2830,7 @@ var getPegasusHost = function() {
         return Array(multiplier + 1).join(input)
     }
 
-},{"../../locale/current/applab":221,"../../locale/current/common":224,"../StudioApp":4,"../codegen":45,"../constants":47,"../dom":48,"../dropletUtils":49,"../skins":173,"../slider":174,"../templates/page.html":198,"../timeoutList":204,"../utils":219,"../xml":220,"./api":6,"./appStorage":7,"./blocks":9,"./controls.html":10,"./dontMarshalApi":11,"./dropletConfig":12,"./extraControlRows.html":13,"./visualization.html":17}],17:[function(require,module,exports){
+},{"../../locale/current/applab":233,"../../locale/current/common":236,"../StudioApp":4,"../codegen":47,"../constants":49,"../dom":50,"../dropletUtils":51,"../skins":185,"../slider":186,"../templates/page.html":210,"../timeoutList":216,"../utils":231,"../xml":232,"./api":6,"./appStorage":7,"./blocks":9,"./controls.html":10,"./dontMarshalApi":11,"./dropletConfig":12,"./extraControlRows.html":13,"./mode-javascript_codeorg":16,"./visualization.html":18}],18:[function(require,module,exports){
 module.exports= (function() {
   var t = function anonymous(locals, filters, escape) {
 escape = escape || function (html){
@@ -2802,7 +2850,97 @@ return buf.join('');
     return t(locals, require("ejs").filters);
   }
 }());
-},{"ejs":240}],13:[function(require,module,exports){
+},{"ejs":252}],16:[function(require,module,exports){
+// define ourselves for ace, so that it knows where to get us
+ace.define("ace/mode/javascript_codeorg",["require","exports","module","ace/lib/oop","ace/mode/javascript","ace/mode/javascript_highlight_rules","ace/worker/worker_client","ace/mode/matching_brace_outdent","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle","ace/config","ace/lib/net"], function(acerequire, exports, module) {
+
+var oop = acerequire("ace/lib/oop");
+var JavaScriptMode = acerequire("ace/mode/javascript").Mode;
+var JavaScriptHighlightRules = acerequire("ace/mode/javascript_highlight_rules").JavaScriptHighlightRules;
+var WorkerClient = acerequire("../worker/worker_client").WorkerClient;
+var MatchingBraceOutdent = acerequire("./matching_brace_outdent").MatchingBraceOutdent;
+var CstyleBehaviour = acerequire("./behaviour/cstyle").CstyleBehaviour;
+var CStyleFoldMode = acerequire("./folding/cstyle").FoldMode;
+
+var Mode = function() {
+    this.HighlightRules = JavaScriptHighlightRules;
+    this.$outdent = new MatchingBraceOutdent();
+    this.$behaviour = new CstyleBehaviour();
+    this.foldingRules = new CStyleFoldMode();
+};
+oop.inherits(Mode, JavaScriptMode);
+
+(function() {
+  var errorMap = {};
+  errorMap["Assignment in conditional expression"] = "For conditionals, use the comparison operator (==) to check if two things are equal.";
+
+  // A set of keywords we don't want to autocomplete
+  var excludedKeywords = [
+    'ArrayBuffer',
+    'Collator',
+    'EvalError',
+    'Float32Array',
+    'Float64Array',
+    'Intl',
+    'Int16Array',
+    'Int32Array',
+    'Int8Array',
+    'Iterator',
+    'NumberFormat',
+    'Object',
+    'QName',
+    'RangeError',
+    'ReferenceError',
+    'StopIteration',
+    'SyntaxError',
+    'TypeError',
+    'Uint16Array',
+    'Uint32Array',
+    'Uint8Array',
+    'Uint8ClampedArra',
+    'URIError'
+  ];
+
+  // Manually create our highlight rules so that we can modify it
+  this.$highlightRules = new JavaScriptHighlightRules();
+
+  excludedKeywords.forEach(function (keywordToRemove) {
+    var keywordIndex = this.$highlightRules.$keywordList.indexOf(keywordToRemove);
+    if (keywordIndex > 0) {
+      this.$highlightRules.$keywordList.splice(keywordIndex);
+    }
+  }, this);
+
+  this.createWorker = function(session) {
+    var worker = new WorkerClient(["ace"], "ace/mode/javascript_worker", "JavaScriptWorker");
+    worker.attachToDocument(session.getDocument());
+    worker.send("changeOptions", [{
+      unused: true
+    }]);
+
+    worker.on("jslint", function(results) {
+      results.data.forEach(function (item) {
+        var errorText = errorMap[item.raw];
+        if (errorText) {
+          // replace existing text
+          item.text = errorText;
+        }
+      });
+      session.setAnnotations(results.data);
+    });
+
+    worker.on("terminate", function() {
+      session.clearAnnotations();
+    });
+
+    return worker;
+  };
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+
+},{}],13:[function(require,module,exports){
 module.exports= (function() {
   var t = function anonymous(locals, filters, escape) {
 escape = escape || function (html){
@@ -2814,7 +2952,7 @@ escape = escape || function (html){
 };
 var buf = [];
 with (locals || {}) { (function(){ 
- buf.push('');1; var msg = require('../../locale/current/common') ; buf.push('\n');2; var applabMsg = require('../../locale/current/applab') ; buf.push('\n\n');4; if (debugButtons) { ; buf.push('\n<div>\n  <div id="debug-buttons" style="display:inline;">\n    <button id="pauseButton" class="share">\n      ', escape((8,  applabMsg.pause() )), '\n    </button>\n    <button id="stepInButton" class="share">\n      ', escape((11,  applabMsg.stepIn() )), '\n    </button>\n    <button id="stepOverButton" class="share">\n      ', escape((14,  applabMsg.stepOver() )), '\n    </button>\n    <button id="stepOutButton" class="share">\n      ', escape((17,  applabMsg.stepOut() )), '\n    </button>\n    <button id="viewDataButton" class="share">\n      ', escape((20,  applabMsg.viewData() )), '\n    </button>\n  </div>\n');23; } ; buf.push('\n\n');25; if (debugConsole) { ; buf.push('\n  <div id="debug-console" class="debug-console">\n    <textarea id="debug-output" readonly disabled tabindex=-1 class="debug-output"></textarea>\n    <span class="debug-input-prompt">\n      &gt;\n    </span>\n    <div contenteditable id="debug-input" class="debug-input"></div>\n  </div>\n');33; } ; buf.push('\n\n');35; if (finishButton) { ; buf.push('\n  <div id="share-cell" class="share-cell-none">\n    <button id="finishButton" class="share">\n      <img src="', escape((38,  assetUrl('media/1x1.gif') )), '">', escape((38,  msg.finish() )), '\n    </button>\n  </div>\n');41; } ; buf.push('\n\n');43; if (debugButtons) { ; buf.push('\n</div>\n');45; } ; buf.push('\n'); })();
+ buf.push('');1; var msg = require('../../locale/current/common') ; buf.push('\n');2; var applabMsg = require('../../locale/current/applab') ; buf.push('\n\n');4; if (debugButtons) { ; buf.push('\n<div>\n  <div id="debug-buttons" style="display:inline;">\n    <button id="pauseButton" class="share">\n      ', escape((8,  applabMsg.pause() )), '\n    </button>\n    <button id="stepInButton" class="share">\n      ', escape((11,  applabMsg.stepIn() )), '\n    </button>\n    <button id="stepOverButton" class="share">\n      ', escape((14,  applabMsg.stepOver() )), '\n    </button>\n    <button id="stepOutButton" class="share">\n      ', escape((17,  applabMsg.stepOut() )), '\n    </button>\n    <button id="viewDataButton" class="share" style="display:none;">\n      ', escape((20,  applabMsg.viewData() )), '\n    </button>\n    <button id="designModeButton" class="share">\n      ', escape((23,  applabMsg.designMode() )), '\n    </button>\n  </div>\n');26; } ; buf.push('\n\n');28; if (debugConsole) { ; buf.push('\n  <div id="debug-console" class="debug-console">\n    <textarea id="debug-output" readonly disabled tabindex=-1 class="debug-output"></textarea>\n    <span class="debug-input-prompt">\n      &gt;\n    </span>\n    <div contenteditable id="debug-input" class="debug-input"></div>\n  </div>\n');36; } ; buf.push('\n\n');38; if (finishButton) { ; buf.push('\n  <div id="share-cell" class="share-cell-none">\n    <button id="finishButton" class="share">\n      <img src="', escape((41,  assetUrl('media/1x1.gif') )), '">', escape((41,  msg.finish() )), '\n    </button>\n  </div>\n');44; } ; buf.push('\n\n');46; if (debugButtons) { ; buf.push('\n</div>\n');48; } ; buf.push('\n'); })();
 } 
 return buf.join('');
 };
@@ -2822,7 +2960,7 @@ return buf.join('');
     return t(locals, require("ejs").filters);
   }
 }());
-},{"../../locale/current/applab":221,"../../locale/current/common":224,"ejs":240}],12:[function(require,module,exports){
+},{"../../locale/current/applab":233,"../../locale/current/common":236,"ejs":252}],12:[function(require,module,exports){
 module.exports.blocks = [
   {'func': 'onEvent', 'title': 'Execute code in response to an event for the specified element. Additional parameters are passed to the callback function.', 'category': 'UI controls', 'params': ['"id"', '"click"', "function(event) {\n  \n}"] },
   {'func': 'button', 'title': 'Create a button and assign it an element id', 'category': 'UI controls', 'params': ['"id"', '"text"'] },
@@ -2917,23 +3055,28 @@ module.exports.blocks = [
 
 module.exports.categories = {
   'UI controls': {
-    'color': 'red',
+    'color': 'yellow',
+    'rgb': '#FFD54F',
     'blocks': []
   },
   'Canvas': {
-    'color': 'yellow',
+    'color': 'red',
+    'rgb': '#F87477',
     'blocks': []
   },
   'Data': {
-    'color': 'orange',
+    'color': 'lightgreen',
+    'rgb': '#D3E965',
     'blocks': []
   },
   'Turtle': {
-    'color': 'yellow',
+    'color': 'cyan',
+    'rgb': '#00D2E2',
     'blocks': []
   },
   'Advanced': {
     'color': 'blue',
+    'rgb': '#19C3E1',
     'blocks': []
   },
 };
@@ -3029,7 +3172,7 @@ return buf.join('');
     return t(locals, require("ejs").filters);
   }
 }());
-},{"../../locale/current/common":224,"ejs":240}],9:[function(require,module,exports){
+},{"../../locale/current/common":236,"ejs":252}],9:[function(require,module,exports){
 /**
  * CodeOrgApp: Applab
  *
@@ -3102,20 +3245,29 @@ function installContainer(blockly, generator, blockInstallOptions) {
   };
 }
 
-},{"../../locale/current/applab":221,"../../locale/current/common":224,"../codegen":45,"../utils":219}],221:[function(require,module,exports){
+},{"../../locale/current/applab":233,"../../locale/current/common":236,"../codegen":47,"../utils":231}],233:[function(require,module,exports){
 /*applab*/ module.exports = window.blockly.appLocale;
 },{}],7:[function(require,module,exports){
 'use strict';
+
+/* global dashboard */
 
 /**
  * Namespace for app storage.
  */
 var AppStorage = module.exports;
 
-// TODO(dave): remove once we can store ids for each app.
-AppStorage.tempEncryptedAppId =
+// TODO(dave): remove once all applab data levels are associated with
+// a project.
+AppStorage.tempChannelId =
     window.location.hostname.split('.')[0] === 'localhost' ?
         "SmwVmYVl1V5UCCw1Ec6Dtw==" : "DvTw9X3pDcyDyil44S6qbw==";
+
+AppStorage.getChannelId = function() {
+  // TODO(dave): pull channel id directly from appOptions once available.
+  var id = dashboard && dashboard.currentApp && dashboard.currentApp.id;
+  return id || AppStorage.tempChannelId;
+};
 
 /**
  * Reads the value associated with the key, accessible to all users of the app.
@@ -3127,7 +3279,7 @@ AppStorage.tempEncryptedAppId =
 AppStorage.getKeyValue = function(key, onSuccess, onError) {
   var req = new XMLHttpRequest();
   req.onreadystatechange = handleGetKeyValue.bind(req, onSuccess, onError);
-  var url = '/v3/apps/' + AppStorage.tempEncryptedAppId + '/shared-properties/' + key;
+  var url = '/v3/shared-properties/' + AppStorage.getChannelId() + '/' + key;
   req.open('GET', url, true);
   req.send();
 };
@@ -3154,7 +3306,7 @@ var handleGetKeyValue = function(onSuccess, onError) {
 AppStorage.setKeyValue = function(key, value, onSuccess, onError) {
   var req = new XMLHttpRequest();
   req.onreadystatechange = handleSetKeyValue.bind(req, onSuccess, onError);
-  var url = '/v3/apps/' + AppStorage.tempEncryptedAppId + '/shared-properties/' + key;
+  var url = '/v3/shared-properties/' + AppStorage.getChannelId() + '/' + key;
   req.open('POST', url, true);
   req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
   req.send(JSON.stringify(value));
@@ -3191,7 +3343,7 @@ AppStorage.createRecord = function(tableName, record, onSuccess, onError) {
   }
   var req = new XMLHttpRequest();
   req.onreadystatechange = handleCreateRecord.bind(req, onSuccess, onError);
-  var url = "/v3/apps/" + AppStorage.tempEncryptedAppId + "/shared-tables/" + tableName;
+  var url = '/v3/shared-tables/' + AppStorage.getChannelId() + '/' + tableName;
   req.open('POST', url, true);
   req.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
   req.send(JSON.stringify(record));
@@ -3229,7 +3381,7 @@ AppStorage.readRecords = function(tableName, searchParams, onSuccess, onError) {
   var req = new XMLHttpRequest();
   req.onreadystatechange = handleReadRecords.bind(req,
       searchParams, onSuccess, onError);
-  var url = '/v3/apps/' + AppStorage.tempEncryptedAppId + "/shared-tables/" + tableName;
+  var url = '/v3/shared-tables/' + AppStorage.getChannelId() + '/' + tableName;
   req.open('GET', url, true);
   req.send();
   
@@ -3277,7 +3429,7 @@ AppStorage.updateRecord = function(tableName, record, onSuccess, onError) {
   }
   var req = new XMLHttpRequest();
   req.onreadystatechange = handleUpdateRecord.bind(req, tableName, record, onSuccess, onError);
-  var url = '/v3/apps/' + AppStorage.tempEncryptedAppId + '/shared-tables/' +
+  var url = '/v3/shared-tables/' + AppStorage.getChannelId() + '/' +
       tableName + '/' + recordId;
   req.open('POST', url, true);
   req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -3321,7 +3473,7 @@ AppStorage.deleteRecord = function(tableName, record, onSuccess, onError) {
   }
   var req = new XMLHttpRequest();
   req.onreadystatechange = handleDeleteRecord.bind(req, tableName, record, onSuccess, onError);
-  var url = '/v3/apps/' + AppStorage.tempEncryptedAppId + '/shared-tables/' +
+  var url = '/v3/shared-tables/' + AppStorage.getChannelId() + '/' +
       tableName + '/' + recordId + '/delete';
   req.open('POST', url, true);
   req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');

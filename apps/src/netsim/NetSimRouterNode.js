@@ -13,6 +13,10 @@
 
 var utils = require('../utils');
 var _ = utils.getLodash();
+var netsimConstants = require('./netsimConstants');
+var DnsMode = netsimConstants.DnsMode;
+var BITS_PER_BYTE = netsimConstants.BITS_PER_BYTE;
+var BITS_PER_NIBBLE = netsimConstants.BITS_PER_NIBBLE;
 var NetSimNode = require('./NetSimNode');
 var NetSimEntity = require('./NetSimEntity');
 var NetSimLogEntry = require('./NetSimLogEntry');
@@ -23,14 +27,23 @@ var NetSimHeartbeat = require('./NetSimHeartbeat');
 var ObservableEvent = require('../ObservableEvent');
 var PacketEncoder = require('./PacketEncoder');
 var dataConverters = require('./dataConverters');
+var intToBinary = dataConverters.intToBinary;
+var asciiToBinary = dataConverters.asciiToBinary;
 
-var logger = new NetSimLogger(console, NetSimLogger.LogLevel.VERBOSE);
+var logger = NetSimLogger.getSingleton();
 
 /**
  * @type {number}
  * @readonly
  */
 var MAX_CLIENT_CONNECTIONS = 6;
+
+/**
+ * Conveniently, a router's address in its local network is always zero.
+ * @type {number}
+ * @readonly
+ */
+var ROUTER_LOCAL_ADDRESS = 0;
 
 /**
  * Client model of simulated router
@@ -61,7 +74,7 @@ var NetSimRouterNode = module.exports = function (shard, row) {
    * @private
    */
   this.dnsMode = row.dnsMode !== undefined ?
-      row.dnsMode : NetSimRouterNode.DnsMode.NONE;
+      row.dnsMode : DnsMode.NONE;
 
   /**
    * Sets current DNS node ID for the router's local network.
@@ -148,16 +161,6 @@ var NetSimRouterNode = module.exports = function (shard, row) {
   this.logChange = new ObservableEvent();
 };
 NetSimRouterNode.inherits(NetSimNode);
-
-/**
- * @enum {string}
- */
-var DnsMode = {
-  NONE: 'none',
-  MANUAL: 'manual',
-  AUTOMATIC: 'automatic'
-};
-NetSimRouterNode.DnsMode = DnsMode;
 
 /**
  * Static async creation method. See NetSimEntity.create().
@@ -351,6 +354,22 @@ NetSimRouterNode.prototype.stopSimulation = function () {
 };
 
 /**
+ * Puts the router into the given DNS mode, triggers a remote update,
+ * and creates/destroys the network's automatic DNS node.
+ * @param {DnsMode} newDnsMode
+ */
+NetSimRouterNode.prototype.setDnsMode = function (newDnsMode) {
+  if (this.dnsMode === newDnsMode) {
+    return;
+  }
+
+  // TODO (bbuchanan): Handle DNS node management here
+
+  this.dnsMode = newDnsMode;
+  this.update();
+};
+
+/**
  * Query the wires table and pass the callback a list of wire table rows,
  * where all of the rows are wires attached to this router.
  * @param {NodeStyleCallback} onComplete which accepts an Array of NetSimWire.
@@ -451,7 +470,6 @@ NetSimRouterNode.prototype.acceptConnection = function (otherNode, onComplete) {
 NetSimRouterNode.prototype.requestAddress = function (wire, hostname, onComplete) {
   onComplete = onComplete || function () {};
 
-
   // General strategy: Create a list of existing remote addresses, pick a
   // new one, and assign it to the provided wire.
   var self = this;
@@ -476,7 +494,7 @@ NetSimRouterNode.prototype.requestAddress = function (wire, hostname, onComplete
 
     wire.localAddress = newAddress;
     wire.localHostname = hostname;
-    wire.remoteAddress = 0; // Always 0 for routers
+    wire.remoteAddress = ROUTER_LOCAL_ADDRESS;
     wire.remoteHostname = self.getHostname();
     wire.update(onComplete);
     // TODO: Fix possibility of two routers getting addresses by verifying
@@ -542,7 +560,6 @@ NetSimRouterNode.prototype.onWireTableChange_ = function (rows) {
 
   if (!_.isEqual(this.myWireRowCache_, myWireRows)) {
     this.myWireRowCache_ = myWireRows;
-    logger.info("Router wires changed.");
     this.wiresChange.notifyObservers();
   }
 };
@@ -578,7 +595,6 @@ NetSimRouterNode.prototype.getLog = function () {
  * @private
  */
 NetSimRouterNode.prototype.onMessageTableChange_ = function (rows) {
-
   if (!this.simulateForSender_) {
     // Not configured to handle anything yet; don't process messages.
     return;
@@ -590,35 +606,71 @@ NetSimRouterNode.prototype.onMessageTableChange_ = function (rows) {
     return;
   }
 
-  var self = this;
-  var messages = rows.map(function (row) {
-    return new NetSimMessage(self.shard_, row);
-  }).filter(function (message) {
-    return message.fromNodeID === self.simulateForSender_ &&
-        message.toNodeID === self.entityID;
-  });
+  var messages = rows
+      .map(function (row) {
+        return new NetSimMessage(this.shard_, row);
+      }.bind(this))
+      .filter(function (message) {
+        return message.fromNodeID === this.simulateForSender_ &&
+            message.toNodeID === this.entityID;
+      }.bind(this));
 
-  // If any messages are for us, get our routing table and process messages.
-  if (messages.length > 0) {
-    this.isProcessingMessages_ = true;
-    this.getConnections(function (err, wires) {
-      messages.forEach(function (message) {
-
-        // Pull the message off the wire, and hold it in-memory until we route it.
-        // We'll create a new one with the same payload if we have to send it on.
-        message.destroy(function (err) {
-          if (err) {
-            logger.error("Error pulling message off the wire for routing; " +
-                err.message);
-            return;
-          }
-          self.routeMessage_(message, wires);
-        });
-
-      });
-      self.isProcessingMessages_ = false;
-    });
+  if (messages.length === 0) {
+    // No messages for us, no work to do.
+    return;
   }
+
+  // Setup (sync): Set processing flag
+  logger.info("Router received " + messages.length + " messages");
+  this.isProcessingMessages_ = true;
+
+  // Step 1 (async): Pull all our messages out of storage.
+  NetSimEntity.destroyEntities(messages, function (err) {
+    if (err) {
+      logger.error("Error pulling message off the wire for routing; " + err.message);
+      this.isProcessingMessages_ = false;
+      return;
+    }
+
+    // Step 2 (async): Get our connection info, which we will need for routing
+    this.getConnections(function (err, wires) {
+      if (err) {
+        logger.error("Error retrieving router connection info");
+        this.isProcessingMessages_ = false;
+        return;
+      }
+
+      // Step 3 (async): Route all messages to destinations
+      this.routeMessages_(messages, wires, function () {
+        // Cleanup (sync): Clear "processing" flag
+        logger.info("Router finished processing " + messages.length + " messages");
+        this.isProcessingMessages_ = false;
+      }.bind(this));
+    }.bind(this));
+  }.bind(this));
+};
+
+/**
+ * Routes all messages (to remote storage) asynchronously, and calls
+ * onComplete when all messages have been routed and/or an error occurs.
+ * @param {NetSimMessage[]} messages
+ * @param {Array.<NetSimWire>} myWires
+ * @param {!NodeStyleCallback} onComplete
+ */
+NetSimRouterNode.prototype.routeMessages_ = function (messages, myWires, onComplete) {
+  if (messages.length === 0) {
+    onComplete(null);
+    return;
+  }
+
+  this.routeMessage_(messages[0], myWires, function (err, result) {
+    if (err) {
+      onComplete(err, result);
+      return;
+    }
+
+    this.routeMessages_(messages.slice(1), myWires, onComplete);
+  }.bind(this));
 };
 
 /**
@@ -628,9 +680,10 @@ NetSimRouterNode.prototype.onMessageTableChange_ = function (rows) {
  *
  * @param {NetSimMessage} message
  * @param {Array.<NetSimWire>} myWires
+ * @param {!NodeStyleCallback} onComplete
  * @private
  */
-NetSimRouterNode.prototype.routeMessage_ = function (message, myWires) {
+NetSimRouterNode.prototype.routeMessage_ = function (message, myWires, onComplete) {
   var toAddress;
 
   // Find a connection to route this message to.
@@ -639,6 +692,16 @@ NetSimRouterNode.prototype.routeMessage_ = function (message, myWires) {
         PacketEncoder.defaultPacketEncoder.getField('toAddress', message.payload));
   } catch (error) {
     this.log(message.payload);
+    onComplete(new Error("Packet not readable by router"));
+    return;
+  }
+
+  // Automatic DNS: requests to address zero hit the "automatic DNS" system
+  // and generate responses.
+  // TODO (bbuchanan): Send to a real auto-dns node
+  if (this.dnsMode === DnsMode.AUTOMATIC && toAddress === ROUTER_LOCAL_ADDRESS) {
+    this.generateDnsResponse_(message, myWires);
+    onComplete(null);
     return;
   }
 
@@ -646,8 +709,8 @@ NetSimRouterNode.prototype.routeMessage_ = function (message, myWires) {
     return wire.localAddress === toAddress;
   });
   if (destWires.length === 0) {
-    // Destination address not in local network.
     this.log(message.payload);
+    onComplete(new Error("Destination address not in local network"));
     return;
   }
 
@@ -661,8 +724,77 @@ NetSimRouterNode.prototype.routeMessage_ = function (message, myWires) {
       destWire.remoteNodeID,
       destWire.localNodeID,
       message.payload,
-      function () {
+      function (err, result) {
         this.log(message.payload);
+        onComplete(err, result);
       }.bind(this)
+  );
+};
+
+/**
+ * @param {NetSimMessage} message
+ * @param {NetSimWire[]} myWires
+ * @private
+ */
+NetSimRouterNode.prototype.generateDnsResponse_ = function (message, myWires) {
+  var fromAddress, query;
+
+  // Extract message contents
+  try {
+    fromAddress = dataConverters.binaryToInt(
+        PacketEncoder.defaultPacketEncoder.getField('fromAddress', message.payload));
+    query = dataConverters.binaryToAscii(
+        PacketEncoder.defaultPacketEncoder.getField('message', message.payload),
+        BITS_PER_BYTE);
+  } catch (error) {
+    // Malformed packet, ignore
+    return;
+  }
+
+  // Check that the query is well-formed
+  // Regex match "GET [hostnames...]"
+  // Then below, we'll split the hostnames on whitespace to process them.
+  var requestMatch = query.match(/GET\s+(\S.*)/);
+  if (requestMatch === null) {
+    // Malformed request, send back directions
+    NetSimMessage.send(
+        this.shard_,
+        ROUTER_LOCAL_ADDRESS,
+        fromAddress,
+        PacketEncoder.defaultPacketEncoder.createBinary({
+          fromAddress: intToBinary(ROUTER_LOCAL_ADDRESS, BITS_PER_NIBBLE),
+          toAddress: intToBinary(fromAddress, BITS_PER_NIBBLE),
+          packetIndex: intToBinary(1, BITS_PER_NIBBLE),
+          packetCount: intToBinary(1, BITS_PER_NIBBLE),
+          message: asciiToBinary("Automatic DNS Node" +
+              "\nUsage: GET hostname [hostname [hostname ...]]", BITS_PER_BYTE)
+        }),
+        function() {}
+    );
+    return;
+  }
+
+  // Good request, look up all addresses and build up response
+  // Skipping first match, which is the full regex
+  var responses = requestMatch[1].split(/\s+/).map(function (queryHostname) {
+    var wire = _.find(myWires, function (wire) {
+      return wire.localHostname === queryHostname;
+    });
+
+    return queryHostname + ':' + (wire ? wire.localAddress : 'NOT_FOUND');
+  });
+
+  NetSimMessage.send(
+      this.shard_,
+      ROUTER_LOCAL_ADDRESS,
+      fromAddress,
+      PacketEncoder.defaultPacketEncoder.createBinary({
+        fromAddress: intToBinary(ROUTER_LOCAL_ADDRESS, BITS_PER_NIBBLE),
+        toAddress: intToBinary(fromAddress, BITS_PER_NIBBLE),
+        packetIndex: intToBinary(1, BITS_PER_NIBBLE),
+        packetCount: intToBinary(1, BITS_PER_NIBBLE),
+        message: asciiToBinary(responses.join(' '), BITS_PER_BYTE)
+      }),
+      function() {}
   );
 };

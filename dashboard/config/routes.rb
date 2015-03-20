@@ -1,3 +1,8 @@
+module OPS
+  API = 'api'
+  DASHBOARDAPI = 'dashboardapi'
+end
+
 Dashboard::Application.routes.draw do
   def redirect_to_teacher_dashboard
     redirect CDO.code_org_url('/teacher-dashboard')
@@ -174,12 +179,6 @@ Dashboard::Application.routes.draw do
 
   post '/sms/send', to: 'sms#send_to_phone', as: 'send_to_phone'
 
-  module OPS
-    API = 'api'
-    DASHBOARDAPI = 'dashboardapi'
-  end
-
-
   concern :ops_routes do
     # /ops/district/:id
     resources :districts do
@@ -188,8 +187,7 @@ Dashboard::Application.routes.draw do
       end
     end
     resources :cohorts do
-      post 'teachers/:teacher_id', action: 'add_teacher', on: :member
-      delete 'teachers/:teacher_id', action: 'drop_teacher', on: :member
+      delete 'teachers/:teacher_id', action: 'destroy_teacher', on: :member
     end
     resources :workshops do
       resources :segments, shallow: true do # See http://guides.rubyonrails.org/routing.html#shallow-nesting

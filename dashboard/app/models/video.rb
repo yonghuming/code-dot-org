@@ -8,7 +8,7 @@ class Video < ActiveRecord::Base
 
     missing_keys = video_keys - i18n_keys
     unless missing_keys.empty?
-      raise "Missing strings for video.name.#{missing_keys.to_s} in config/locales/data.en.yml, please add"
+      raise "Missing strings for video.name.#{missing_keys} in config/locales/data.en.yml, please add"
     end
   end
 
@@ -26,9 +26,9 @@ class Video < ActiveRecord::Base
     'https://www.youtube.com'
   end
 
-  def self.youtube_url(code, args={})
+  def youtube_url(args={})
     defaults = {
-        v: code,
+        v: youtube_code,
         modestbranding: 1,
         rel: 0,
         showinfo: 1,
@@ -45,7 +45,7 @@ class Video < ActiveRecord::Base
       )
     end
     defaults.merge!(args)
-    "#{Video.youtube_base_url}/embed/#{code}/?#{defaults.to_query}"
+    "#{Video.youtube_base_url}/embed/#{youtube_code}/?#{defaults.to_query}"
   end
 
   def thumbnail_path
@@ -55,9 +55,9 @@ class Video < ActiveRecord::Base
   def summarize(autoplay = true)
     # Note: similar video info is also set in javascript at levels/_blockly.html.haml
     {
-        src: Video.youtube_url(youtube_code, {autoplay: autoplay ? 1 : 0}),
+        src: youtube_url(autoplay: autoplay ? 1 : 0),
         key: key,
-        name: I18n.t('data.video.name').try(:[], key.to_sym),
+        name: I18n.t("data.video.name.#{key}"),
         download: download,
         thumbnail: thumbnail_path,
         enable_fallback: true,

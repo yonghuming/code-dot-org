@@ -1,4 +1,4 @@
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({66:[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({68:[function(require,module,exports){
 var appMain = require('../appMain');
 window.Eval = require('./eval');
 var blocks = require('./blocks');
@@ -11,7 +11,7 @@ window.evalMain = function(options) {
   appMain(window.Eval, levels, options);
 };
 
-},{"../appMain":5,"../skins":173,"./blocks":51,"./eval":53,"./levels":65}],53:[function(require,module,exports){
+},{"../appMain":5,"../skins":185,"./blocks":53,"./eval":55,"./levels":67}],55:[function(require,module,exports){
 (function (global){
 /**
  * Blockly Demo: Eval Graphics
@@ -198,21 +198,54 @@ function evalCode (code) {
     if (e instanceof CustomEvalError) {
       return e;
     }
-    // Infinity is thrown if we detect an infinite loop. In that case we'll
-    // stop further execution, animate what occured before the infinite loop,
-    // and analyze success/failure based on what was drawn.
-    // Otherwise, abnormal termination is a user error.
-    if (e !== Infinity) {
-      // call window.onerror so that we get new relic collection.  prepend with
-      // UserCode so that it's clear this is in eval'ed code.
-      if (window.onerror) {
-        window.onerror("UserCode:" + e.message, document.URL, 0);
-      }
-      if (console && console.log) {
-        console.log(e);
-      }
+    if (isInfiniteRecursionError(e)) {
+      return new CustomEvalError(CustomEvalError.Type.InfiniteRecursion, null);
     }
+
+    // call window.onerror so that we get new relic collection.  prepend with
+    // UserCode so that it's clear this is in eval'ed code.
+    if (window.onerror) {
+      window.onerror("UserCode:" + e.message, document.URL, 0);
+    }
+    if (console && console.log) {
+      console.log(e);
+    }
+
+    return new CustomEvalError(CustomEvalError.Type.UserCodeException, null);
   }
+}
+
+/**
+ * Attempts to analyze whether or not err represents infinite recursion having
+ * occurred. This error differs per browser, and it's possible that we don't
+ * properly discover all cases.
+ * Note: Other languages probably have localized messages, meaning we won't
+ * catch them.
+ */
+function isInfiniteRecursionError(err) {
+  // Chrome/Safari: message ends in a period in Safari, not in Chrome
+  if (err instanceof RangeError &&
+    /^Maximum call stack size exceeded/.test(err.message)) {
+    return true;
+  }
+
+  // Firefox
+  /* jshint ignore:start */
+  // Linter doesn't like our use of InternalError, even though we gate on its
+  // existence.
+  if (typeof(InternalError) !== 'undefined' && err instanceof InternalError &&
+      err.message === 'too much recursion') {
+    return true;
+  }
+  /* jshint ignore:end */
+
+  // IE
+  if (err instanceof Error &&
+      err.message === 'Out of stack space') {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -331,11 +364,11 @@ Eval.execute = function() {
       // We got an EvalImage back, compare it to our target
       Eval.result = evaluateAnswer();
       Eval.testResults = studioApp.getTestResults(Eval.result);
-    }
 
-    if (level.freePlay) {
-      Eval.result = true;
-      Eval.testResults = TestResults.FREE_PLAY;
+      if (level.freePlay) {
+        Eval.result = true;
+        Eval.testResults = TestResults.FREE_PLAY;
+      }
     }
   }
 
@@ -409,6 +442,7 @@ var displayFeedback = function(response) {
     feedbackType: Eval.testResults,
     response: response,
     level: level,
+    tryAgainText: level.freePlay ? commonMsg.keepPlaying() : undefined,
     appStrings: {
       reinfFeedbackMsg: evalMsg.reinfFeedbackMsg()
     }
@@ -431,7 +465,7 @@ function onReportComplete(response) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../locale/current/common":224,"../../locale/current/eval":225,"../StudioApp":4,"../block_utils":19,"../canvg/canvg.js":42,"../codegen":45,"../dom":48,"../skins":173,"../templates/page.html":198,"./api":50,"./controls.html":52,"./evalError":56,"./evalText":62,"./levels":65,"./visualization.html":67}],67:[function(require,module,exports){
+},{"../../locale/current/common":236,"../../locale/current/eval":237,"../StudioApp":4,"../block_utils":19,"../canvg/canvg.js":43,"../codegen":47,"../dom":50,"../skins":185,"../templates/page.html":210,"./api":52,"./controls.html":54,"./evalError":58,"./evalText":64,"./levels":67,"./visualization.html":69}],69:[function(require,module,exports){
 module.exports= (function() {
   var t = function anonymous(locals, filters, escape) {
 escape = escape || function (html){
@@ -451,7 +485,7 @@ return buf.join('');
     return t(locals, require("ejs").filters);
   }
 }());
-},{"ejs":240}],65:[function(require,module,exports){
+},{"ejs":252}],67:[function(require,module,exports){
 var msg = require('../../locale/current/eval');
 var blockUtils = require('../block_utils');
 
@@ -519,7 +553,7 @@ module.exports = {
   }
 };
 
-},{"../../locale/current/eval":225,"../block_utils":19}],52:[function(require,module,exports){
+},{"../../locale/current/eval":237,"../block_utils":19}],54:[function(require,module,exports){
 module.exports= (function() {
   var t = function anonymous(locals, filters, escape) {
 escape = escape || function (html){
@@ -542,7 +576,7 @@ return buf.join('');
     return t(locals, require("ejs").filters);
   }
 }());
-},{"../../locale/current/common":224,"../../locale/current/eval":225,"ejs":240}],51:[function(require,module,exports){
+},{"../../locale/current/common":236,"../../locale/current/eval":237,"ejs":252}],53:[function(require,module,exports){
 /**
  * Blockly Demo: Eval Graphics
  *
@@ -837,7 +871,7 @@ function installFunctionalBlock (blockly, generator, gensym, options) {
   };
 }
 
-},{"../../locale/current/common":224,"../../locale/current/eval":225,"../sharedFunctionalBlocks":172,"./evalUtils":64}],50:[function(require,module,exports){
+},{"../../locale/current/common":236,"../../locale/current/eval":237,"../sharedFunctionalBlocks":184,"./evalUtils":66}],52:[function(require,module,exports){
 var evalUtils = require('./evalUtils');
 var EvalImage = require('./evalImage');
 var EvalText = require('./evalText');
@@ -958,7 +992,7 @@ exports.stringLength = function (str) {
   return str.length;
 };
 
-},{"./evalCircle":54,"./evalEllipse":55,"./evalImage":57,"./evalMulti":58,"./evalPolygon":59,"./evalRect":60,"./evalStar":61,"./evalText":62,"./evalTriangle":63,"./evalUtils":64}],63:[function(require,module,exports){
+},{"./evalCircle":56,"./evalEllipse":57,"./evalImage":59,"./evalMulti":60,"./evalPolygon":61,"./evalRect":62,"./evalStar":63,"./evalText":64,"./evalTriangle":65,"./evalUtils":66}],65:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1009,7 +1043,7 @@ EvalTriangle.prototype.draw = function (parent) {
   EvalImage.prototype.draw.apply(this, arguments);
 };
 
-},{"./evalImage":57,"./evalUtils":64}],62:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],64:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1048,7 +1082,7 @@ EvalText.prototype.getText = function () {
   return this.text_;
 };
 
-},{"./evalImage":57,"./evalUtils":64}],61:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],63:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1095,7 +1129,7 @@ EvalStar.prototype.draw = function (parent) {
   EvalImage.prototype.draw.apply(this, arguments);
 };
 
-},{"./evalImage":57,"./evalUtils":64}],60:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],62:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1130,7 +1164,7 @@ EvalRect.prototype.draw = function (parent) {
   EvalImage.prototype.draw.apply(this, arguments);
 };
 
-},{"./evalImage":57,"./evalUtils":64}],59:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],61:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1169,7 +1203,7 @@ EvalPolygon.prototype.draw = function (parent) {
   EvalImage.prototype.draw.apply(this, arguments);
 };
 
-},{"./evalImage":57,"./evalUtils":64}],58:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],60:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1216,7 +1250,7 @@ EvalImage.prototype.getChildren = function () {
   return [this.image1_, this.image2_];
 };
 
-},{"./evalImage":57,"./evalUtils":64}],55:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],57:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1249,7 +1283,7 @@ EvalCircle.prototype.draw = function (parent) {
   EvalImage.prototype.draw.apply(this, arguments);
 };
 
-},{"./evalImage":57,"./evalUtils":64}],54:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],56:[function(require,module,exports){
 var EvalImage = require('./evalImage');
 var evalUtils = require('./evalUtils');
 
@@ -1284,7 +1318,7 @@ EvalCircle.prototype.rotate = function () {
   // a bitmap.
 };
 
-},{"./evalImage":57,"./evalUtils":64}],57:[function(require,module,exports){
+},{"./evalImage":59,"./evalUtils":66}],59:[function(require,module,exports){
 var evalUtils = require('./evalUtils');
 
 var EvalImage = function (style, color) {
@@ -1352,7 +1386,7 @@ EvalImage.prototype.getChildren = function () {
   return [];
 };
 
-},{"./evalUtils":64}],64:[function(require,module,exports){
+},{"./evalUtils":66}],66:[function(require,module,exports){
 var CustomEvalError = require('./evalError');
 var utils = require('../utils');
 var _ = utils.getLodash();
@@ -1450,7 +1484,7 @@ module.exports.cartesianToPixel = function (cartesianY) {
   return 400 - cartesianY;
 };
 
-},{"../utils":219,"./evalError":56}],56:[function(require,module,exports){
+},{"../utils":231,"./evalError":58}],58:[function(require,module,exports){
 var evalMsg = require('../../locale/current/eval');
 
 /**
@@ -1460,13 +1494,19 @@ var evalMsg = require('../../locale/current/eval');
  */
 var CustomEvalError = function (type, val) {
   this.type = type;
-  
+
   switch (type) {
     case CustomEvalError.Type.BadStyle:
       this.feedbackMessage = evalMsg.badStyleStringError({val: val});
       break;
     case CustomEvalError.Type.BadColor:
       this.feedbackMessage = evalMsg.badColorStringError({val: val});
+      break;
+    case CustomEvalError.Type.InfiniteRecursion:
+      this.feedbackMessage = evalMsg.infiniteRecursionError();
+      break;
+    case CustomEvalError.Type.UserCodeException:
+      this.feedbackMessage = evalMsg.userCodeException();
       break;
     default:
       this.feedbackMessag = '';
@@ -1477,9 +1517,11 @@ module.exports = CustomEvalError;
 
 CustomEvalError.Type = {
   BadStyle: 0,
-  BadColor: 1
+  BadColor: 1,
+  InfiniteRecursion: 2,
+  UserCodeException: 3
 };
 
-},{"../../locale/current/eval":225}],225:[function(require,module,exports){
+},{"../../locale/current/eval":237}],237:[function(require,module,exports){
 /*eval*/ module.exports = window.blockly.appLocale;
-},{}]},{},[66]);
+},{}]},{},[68]);

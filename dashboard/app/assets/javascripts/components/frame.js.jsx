@@ -288,6 +288,12 @@
         return "/s/" + route.script + "/stage/" + route.stage + "/puzzle/" + route.level;
       }
 
+      // Calculate route for projects
+      if (route.project) {
+        // TODO: offline
+        return "/p/" + route.project;
+      }
+
       if (route.complete) {
         // For now, completion routes are always online.
         // TODO: Are there other cases?
