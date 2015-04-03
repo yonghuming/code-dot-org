@@ -1,13 +1,13 @@
 source 'https://rubygems.org'
-ruby '2.0.0'
+ruby '2.2.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.0.3'
+gem 'rails', '~> 4.0.3'
 
 gem 'sinatra', '1.4.4', require: 'sinatra/base'
 gem 'rack-contrib', '~> 1.1'
 
-gem 'mysql2', '0.3.13'
+gem 'mysql2', '~> 0.3'
 gem 'seamless_database_pool'
 
 gem 'le', '~> 2.2'
@@ -50,6 +50,8 @@ group :development, :test do
   gem 'spring-commands-testunit'
   gem 'minitest-reporters'
   gem 'eyes_selenium'
+
+  gem 'rails-perftest'
 end
 
 group :doc do
@@ -90,7 +92,7 @@ gem 'haml'
 
 gem 'jquery-ui-rails', '~> 5.0.3'
 
-gem 'nokogiri', '1.6.1'
+gem 'nokogiri', '~> 1.6.1'
 
 gem 'highline', '~> 1.6.21'
 

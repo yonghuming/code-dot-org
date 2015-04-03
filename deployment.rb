@@ -73,7 +73,6 @@ def load_configuration()
     'use_dynamo_properties'       => [:staging, :test, :production].include?(rack_env),
     'dynamo_tables_table'         => "#{rack_env}_tables",
     'dynamo_tables_index'         => "channel_id-table_name-index",
-    'use_dynamo_properties'       => false,
     'dynamo_properties_table'     => "#{rack_env}_properties",
     'lint'                        => rack_env == :staging || rack_env == :development
   }.tap do |config|
