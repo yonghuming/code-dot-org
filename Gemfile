@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 ruby '2.2.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 4.0.3'
+gem 'rails', '~> 4.2'
 
 gem 'sinatra', '1.4.4', require: 'sinatra/base'
 gem 'rack-contrib', '~> 1.1'

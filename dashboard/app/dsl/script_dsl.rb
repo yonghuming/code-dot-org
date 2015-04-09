@@ -19,7 +19,7 @@ class ScriptDSL < BaseDSL
   end
 
   def id(id)
-    @id = ActiveRecord::ConnectionAdapters::Column::value_to_integer(id)
+    @id = ActiveRecord::Type::Integer.new.type_cast_from_database(id)
   end
 
   def title(title)
@@ -39,11 +39,11 @@ class ScriptDSL < BaseDSL
   end
 
   def hidden(hidden_string)
-    @hidden = ActiveRecord::ConnectionAdapters::Column::value_to_boolean(hidden_string)
+    @hidden = ActiveRecord::Type::Boolean.new.type_cast_from_database(hidden_string)
   end
 
   def trophies(trophies_string)
-    @trophies = ActiveRecord::ConnectionAdapters::Column::value_to_boolean(trophies_string)
+    @trophies = ActiveRecord::Type::Boolean.new.type_cast_from_database(trophies_string)
   end
 
   def wrapup_video(wrapup_video)
