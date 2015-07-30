@@ -59,6 +59,7 @@ class StorageApps
     update_count = @table.where(id: id).exclude(state: 'deleted').update(row)
     raise NotFound, "channel `#{channel_id}` not found" if update_count == 0
 
+    row = @table.where(id: id).exclude(state: 'deleted').first
     JSON.parse(row[:value]).merge(id: channel_id, isOwner: owner == @storage_id, createdAt: row[:created_at], updatedAt: row[:updated_at])
   end
 

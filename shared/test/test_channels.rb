@@ -43,6 +43,9 @@ class ChannelsTest < Minitest::Unit::TestCase
     start = Time.now - 1
     post "/v3/channels/#{channel_id}", {abc: 456}.to_json, 'CONTENT_TYPE' => 'application/json;charset=utf-8'
     assert last_response.successful?
+    result = JSON.parse(last_response.body)
+    assert_equal created, result['createdAt']
+    refute_equal result['createdAt'], result['updatedAt']
 
     get "/v3/channels/#{channel_id}"
     assert last_response.ok?
