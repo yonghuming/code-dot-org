@@ -20,7 +20,8 @@ gem 'parallel'
 gem 'google-api-client'
 
 group :development do
-  gem 'rerun', '~> 0.10.0'
+  # use fork until alexch/rerun PR#75 is merged/released
+  gem 'rerun', github: 'wjordan/rerun', ref: '96992a7210754fcbafe0f47c1986dd1b448d3d7f'
   gem 'shotgun'
   gem 'thin', '~> 1.6.2'
 end
@@ -50,6 +51,8 @@ group :development, :test do
   gem 'colorize'
   gem 'spring'
   gem 'spring-commands-testunit'
+  # Watch filesystem for changes using Listen instead of polling.
+  gem 'spring-watcher-listen'
   gem 'minitest-reporters'
   gem 'eyes_selenium'
 end
