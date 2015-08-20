@@ -20,8 +20,8 @@ gem 'parallel'
 gem 'google-api-client'
 
 group :development do
-  # use fork until alexch/rerun PR#75 is merged/released
-  gem 'rerun', github: 'wjordan/rerun', ref: '96992a7210754fcbafe0f47c1986dd1b448d3d7f'
+  # use github until alexch/rerun#75 is published to rubygems
+  gem 'rerun', github: 'alexch/rerun', ref: '65664e55a9a87db2c19e15b5821b9d5ade7be16d'
   gem 'shotgun'
   gem 'thin', '~> 1.6.2'
 end

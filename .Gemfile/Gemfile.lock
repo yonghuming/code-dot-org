@@ -1,18 +1,18 @@
 GIT
+  remote: git://github.com/alexch/rerun.git
+  revision: 65664e55a9a87db2c19e15b5821b9d5ade7be16d
+  ref: 65664e55a9a87db2c19e15b5821b9d5ade7be16d
+  specs:
+    rerun (0.10.0)
+      listen (~> 3.0)
+
+GIT
   remote: git://github.com/rails-api/active_model_serializers.git
   revision: 2962f3f64e7c672bfb5a13a8f739b5db073e5473
   ref: 2962f3f64e7c672bfb5a13a8f739b5db073e5473
   specs:
     active_model_serializers (0.10.0.pre)
       activemodel (>= 4.0)
-
-GIT
-  remote: git://github.com/wjordan/rerun.git
-  revision: 96992a7210754fcbafe0f47c1986dd1b448d3d7f
-  ref: 96992a7210754fcbafe0f47c1986dd1b448d3d7f
-  specs:
-    rerun (0.10.0)
-      listen (~> 3.0)
 
 GIT
   remote: https://github.com/code-dot-org/omniauth-clever.git
