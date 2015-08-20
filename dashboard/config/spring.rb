@@ -1,14 +1,19 @@
 # Configure Spring-specific settings.
 
-# Listen >=2.8 throws errors on local symlinks to avoid watching the same files twice.
-# Ref: https://github.com/guard/listen/pull/273
-# We expect this behavior on locally-symlinked files, so this patch silences the noise.
-require 'listen/record/symlink_detector'
-module Listen
-  class Record
-    class SymlinkDetector
-      def _fail(_, _)
-        fail Error, "Don't watch locally-symlinked file twice"
+# Monkey-patch spring-watcher-listen to not watch the root directory by default
+# This avoids errors caused by recursively watching local symlinks in Listen >= 2.8
+# refs:
+# https://github.com/jonleighton/spring-watcher-listen/issues/8
+# https://github.com/guard/listen/issues/339
+# https://github.com/guard/listen/pull/273
+require 'spring/watcher/listen'
+module Spring
+  module Watcher
+    class Listen < Abstract
+      def base_directories
+        (files.map { |f| File.expand_path("#{f}/..") } +
+          directories.to_a
+        ).uniq.map { |path| Pathname.new(path) }
       end
     end
   end
@@ -17,5 +22,4 @@ end
 Spring.watch %w(
   ../lib
   ../shared
-  ../deployment.rb
 )
