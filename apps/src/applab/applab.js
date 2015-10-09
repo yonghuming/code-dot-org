@@ -751,13 +751,10 @@ Applab.init = function(config) {
     vizCol.style.maxWidth = viz.offsetWidth + 'px';
   }
 
-  var debugAreaEnabled  = !config.share;
+  debugAreaController = new DebugArea(
+      document.getElementById('debug-area'),
+      document.getElementById('codeTextbox'));
 
-  if (debugAreaEnabled) {
-    debugAreaController = new DebugArea(
-        document.getElementById('debug-area'),
-        document.getElementById('codeTextbox'));
-  }
   if (level.editCode) {
     // Initialize the slider.
     var slider = document.getElementById('applab-slider');
