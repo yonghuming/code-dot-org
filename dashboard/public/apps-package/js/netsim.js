@@ -23033,11 +23033,11 @@ arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_module
 },{"../base":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/base/index.js","buffer":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/buffer/index.js","inherits":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/inherits/inherits_browser.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/api.js":[function(require,module,exports){
 arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1/api.js"][0].apply(exports,arguments)
 },{"../asn1":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/node_modules/asn1.js/lib/asn1.js","inherits":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/inherits/inherits_browser.js","vm":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/vm-browserify/index.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/parse-asn1/aesid.json":[function(require,module,exports){
-arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json"][0].apply(exports,arguments)
+module.exports=arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json"][0].apply(exports,arguments)
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/browserify-rsa/index.js":[function(require,module,exports){
 arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/browserify-rsa/index.js"][0].apply(exports,arguments)
 },{"bn.js":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/bn.js/lib/bn.js","buffer":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/buffer/index.js","randombytes":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/node_modules/bn.js/lib/bn.js":[function(require,module,exports){
-arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js"][0].apply(exports,arguments)
+arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/bn.js/lib/bn.js"][0].apply(exports,arguments)
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/mgf.js":[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
@@ -23102,7 +23102,7 @@ exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman;
 
 }).call(this,require("buffer").Buffer)
 },{"./lib/dh":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/lib/dh.js","./lib/generatePrime":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/lib/generatePrime.js","./lib/primes":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/lib/primes.json","buffer":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/buffer/index.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/lib/primes.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports={
     "modp1": {
         "gen": "02",
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a63a3620ffffffffffffffff"
@@ -23555,9 +23555,9 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
 };
 
 },{"bn.js":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js","brorand":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/miller-rabin/node_modules/brorand/index.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/miller-rabin/node_modules/brorand/index.js":[function(require,module,exports){
-arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js"][0].apply(exports,arguments)
+arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/brorand/index.js"][0].apply(exports,arguments)
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/diffie-hellman/node_modules/bn.js/lib/bn.js":[function(require,module,exports){
-arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/bn.js/lib/bn.js"][0].apply(exports,arguments)
+arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/bn.js/lib/bn.js"][0].apply(exports,arguments)
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/index.js":[function(require,module,exports){
 var createECDH = require('crypto').createECDH;
 
@@ -23681,7 +23681,7 @@ function formatReturnValue(bn, enc, len) {
 },{"bn.js":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/bn.js/lib/bn.js","buffer":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/buffer/index.js","elliptic":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic.js":[function(require,module,exports){
 arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic.js"][0].apply(exports,arguments)
 },{"../package.json":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/package.json","./elliptic/curve":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curve/index.js","./elliptic/curves":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/curves.js","./elliptic/ec":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/ec/index.js","./elliptic/hmac-drbg":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/hmac-drbg.js","./elliptic/utils":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/utils.js","brorand":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/brorand/index.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/package.json":[function(require,module,exports){
-arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json"][0].apply(exports,arguments)
+module.exports=arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json"][0].apply(exports,arguments)
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/node_modules/brorand/index.js":[function(require,module,exports){
 arguments[4]["/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js"][0].apply(exports,arguments)
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-ecdh/node_modules/elliptic/lib/elliptic/utils.js":[function(require,module,exports){
@@ -27470,7 +27470,7 @@ module.exports = function(arr, obj){
   return -1;
 };
 },{}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/parse-asn1/aesid.json":[function(require,module,exports){
-module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
+module.exports=module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
 "2.16.840.1.101.3.4.1.4": "aes-128-cfb",
@@ -27499,7 +27499,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 
 },{"../package.json":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json","./elliptic/curve":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curve/index.js","./elliptic/curves":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/curves.js","./elliptic/ec":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/ec/index.js","./elliptic/hmac-drbg":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/hmac-drbg.js","./elliptic/utils":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/lib/elliptic/utils.js","brorand":"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/node_modules/brorand/index.js"}],"/home/trevor/code-dot-org/apps/node_modules/browserify/node_modules/crypto-browserify/node_modules/browserify-sign/node_modules/elliptic/package.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports={
   "name": "elliptic",
   "version": "3.1.0",
   "description": "EC cryptography",
