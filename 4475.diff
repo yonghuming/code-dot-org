@@ -1,0 +1,57 @@
+diff --git a/apps/src/applab/applab.js b/apps/src/applab/applab.js
+index 22b696a..3f59429 100644
+--- a/apps/src/applab/applab.js
++++ b/apps/src/applab/applab.js
+@@ -761,10 +761,13 @@ Applab.init = function(config) {
+     vizCol.style.maxWidth = viz.offsetWidth + 'px';
+   }
+ 
+-  debugAreaController = new DebugArea(
+-      document.getElementById('debug-area'),
+-      document.getElementById('codeTextbox'));
++  var debugAreaEnabled  = !config.share;
+ 
++  if (debugAreaEnabled) {
++    debugAreaController = new DebugArea(
++        document.getElementById('debug-area'),
++        document.getElementById('codeTextbox'));
++  }
+   if (level.editCode) {
+     // Initialize the slider.
+     var slider = document.getElementById('applab-slider');
+diff --git a/dashboard/app/controllers/projects_controller.rb b/dashboard/app/controllers/projects_controller.rb
+index 9e24c38..55b4c28 100644
+--- a/dashboard/app/controllers/projects_controller.rb
++++ b/dashboard/app/controllers/projects_controller.rb
+@@ -44,6 +44,7 @@ def angular
+   def show
+     sharing = params[:share] == true
+     readonly = params[:readonly] == true
++
+     level_view_options(
+         hide_source: sharing,
+         share: sharing,
+diff --git a/dashboard/app/helpers/levels_helper.rb b/dashboard/app/helpers/levels_helper.rb
+index 59211dc..6ad4b17 100644
+--- a/dashboard/app/helpers/levels_helper.rb
++++ b/dashboard/app/helpers/levels_helper.rb
+@@ -272,6 +272,11 @@ def blockly_options
+       level_options['submittable'] = false
+     end
+ 
++    if app_options[:share]
++      app_options[:droplet] = false
++      level_options["editCode"] = false
++    end
++
+     # Request-dependent option
+     app_options[:sendToPhone] = request.location.try(:country_code) == 'US' ||
+         (!Rails.env.production? && request.location.try(:country_code) == 'RD') if request
+@@ -288,7 +293,6 @@ def blockly_options
+         :trademark => URI.escape(I18n.t('footer.trademark', current_year: Time.now.year))
+       }
+     end
+-
+     app_options
+   end
+ 
