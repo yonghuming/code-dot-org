@@ -102,7 +102,7 @@ config.clean = {
   digest: ['build/package/js/**/*-????????????????????????????????.js']
 };
 
-var ace_suffix = envOptions.dev ? '' : '-min';
+var ace_suffix = envOptions.dev ? '' : '';
 var dotMinIfNotDev = envOptions.dev ? '' : '.min';
 
 config.copy = {
@@ -321,10 +321,10 @@ config.concat = {
     nonull: true,
     src: [
       'lib/jsinterpreter/acorn_interpreter.js',
-      'lib/ace/src-min-noconflict/ace.js',
-      'lib/ace/src-min-noconflict/mode-javascript.js',
-      'lib/ace/src-min-noconflict/ext-language_tools.js',
-      'lib/ace/src-min-noconflict/theme-chrome.js',
+      'lib/ace/src' + ace_suffix + '-noconflict/ace.js',
+      'lib/ace/src' + ace_suffix + '-noconflict/mode-javascript.js',
+      'lib/ace/src' + ace_suffix + '-noconflict/ext-language_tools.js',
+      'lib/ace/src' + ace_suffix + '-noconflict/theme-chrome.js',
     ],
     dest: 'build/package/js/droplet-lib.js'
   }

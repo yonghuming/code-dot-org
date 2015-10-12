@@ -1471,6 +1471,7 @@ StudioApp.prototype.handleEditCode_ = function (options) {
   /* jshint ignore:start */
   ace = window.ace;
   /* jshint ignore:end */
+  ace.config.set('basePath', '/blockly/js/ace/');
 
   var fullDropletPalette = dropletUtils.generateDropletPalette(
     options.codeFunctions, options.dropletConfig);
