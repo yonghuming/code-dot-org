@@ -316,6 +316,17 @@ config.concat = {
       'lib/blockly/javascript_' + ext + '.js'
     ],
     dest: 'build/package/js/blockly.js'
+  },
+  droplet_lib: {
+    nonull: true,
+    src: [
+      'lib/jsinterpreter/acorn_interpreter.js',
+      'lib/ace/src-min-noconflict/ace.js',
+      'lib/ace/src-min-noconflict/mode-javascript.js',
+      'lib/ace/src-min-noconflict/ext-language_tools.js',
+      'lib/ace/src-min-noconflict/theme-chrome.js',
+    ],
+    dest: 'build/package/js/droplet-lib.js'
   }
 };
 

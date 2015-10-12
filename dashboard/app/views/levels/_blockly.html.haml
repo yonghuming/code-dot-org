@@ -35,10 +35,7 @@
 
   -# Droplet script dependencies
   - if is_droplet
-    %script{src: asset_path("#{apps_path}js/jsinterpreter/acorn_interpreter.js")}
-    %script{src: asset_path("#{apps_path}js/ace/ace.js")}
-    %script{src: asset_path("#{apps_path}js/ace/mode-javascript.js")}
-    %script{src: asset_path("#{apps_path}js/ace/ext-language_tools.js")}
+    %script{src: asset_path("#{apps_path}js/droplet-lib.js")}
     %script{src: asset_path("#{apps_path}js/droplet/droplet-full.js")}
     %script{src: asset_path("#{apps_path}js/tooltipster/jquery.tooltipster.js")}
 
