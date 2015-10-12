@@ -7186,6 +7186,7 @@ StudioApp.prototype.handleEditCode_ = function (options) {
   /* jshint ignore:start */
   ace = window.ace;
   /* jshint ignore:end */
+  ace.config.set('basePath', '/blockly/js/ace/');
 
   var fullDropletPalette = dropletUtils.generateDropletPalette(
     options.codeFunctions, options.dropletConfig);
@@ -7218,7 +7219,9 @@ StudioApp.prototype.handleEditCode_ = function (options) {
 
   this.editor.aceEditor.setOptions({
     enableBasicAutocompletion: true,
-    enableLiveAutocompletion: true
+    enableLiveAutocompletion: true,
+    workerUrl: '/yo',
+    basePath: '/whateve'
   });
 
   this.dropletTooltipManager = new DropletTooltipManager(this.appMsg, options.dropletConfig);
