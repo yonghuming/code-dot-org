@@ -60,11 +60,11 @@ class ActivitiesControllerTest < ActionController::TestCase
     }.merge options
   end
 
-  def build_try_again_response(options = {})
+  def build_try_again_response(level_source_id, options = {})
     {
       previous_level: build_script_level_path(@script_level_prev),
       message: 'try again',
-      level_source: "http://test.host/c/#{assigns(:level_source).id}",
+      level_source: "http://test.host/c/#{level_source_id}",
       design: 'white_background',
     }.merge options
   end
@@ -86,8 +86,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    expected_response = build_expected_response(level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_expected_response(level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     # created a user script
     user_script = UserScript.last
@@ -181,11 +182,12 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     # pretend it succeeded
     assert_response :success
+    response_json = JSON.parse(@response.body)
 
     expected_response = build_expected_response(
         total_lines: 15, # No change
-        level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+        level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     # activity does not have unreasonable lines of code either
     assert_equal 0, Activity.last.lines
@@ -209,11 +211,11 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     # pretend it succeeded
     assert_response :success
-
+    response_json = JSON.parse(@response.body)
     expected_response = build_expected_response(
         total_lines: 1015, # Pretend it was 1000
-        level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+        level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     # activity does not have unreasonable lines of code either
     assert_equal 1000, Activity.last.lines
@@ -252,8 +254,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    expected_response = build_expected_response(level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_expected_response(level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     # created a user script that we started in the past with the other userlevel
     user_script = UserScript.last
@@ -281,9 +284,9 @@ class ActivitiesControllerTest < ActionController::TestCase
     end
 
     assert_response :success
-
-    expected_response = build_expected_response(level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_expected_response(level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     # created gallery activity and activity for user
     assert_equal @user, Activity.last.user
@@ -310,8 +313,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    expected_response = build_expected_response(level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_expected_response(level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     assert_equal @user, Activity.last.user
   end
@@ -336,8 +340,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    expected_response = build_expected_response(level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_expected_response(level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
 
     assert_equal @user, Activity.last.user
   end
@@ -355,7 +360,8 @@ class ActivitiesControllerTest < ActionController::TestCase
     end
 
     assert_response :success
-    assert_equal_expected_keys build_try_again_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    assert_equal_expected_keys build_try_again_response(response_json['level_source_id']), response_json
   end
 
   test "logged in milestone not passing with hint" do
@@ -376,8 +382,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    expected_response = build_try_again_response(hint: hint.hint)
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_try_again_response(response_json['level_source_id'], hint: hint.hint)
+    assert_equal_expected_keys expected_response, response_json
   end
 
 
@@ -396,7 +403,8 @@ class ActivitiesControllerTest < ActionController::TestCase
 #    assert_equal @good_image.size, LevelSourceImage.last.image.size
 
     assert_response :success
-    assert_equal_expected_keys build_try_again_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    assert_equal_expected_keys build_try_again_response(response_json['level_source_id']), response_json
   end
 
   test "logged in milestone with image" do
@@ -418,10 +426,11 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
+    response_json = JSON.parse(@response.body)
     expected_response = build_expected_response(
-        level_source: "http://test.host/c/#{assigns(:level_source).id}",
-        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{assigns(:activity).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+        level_source: "http://test.host/c/#{response_json['level_source_id']}",
+        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{Activity.last.id}")
+    assert_equal_expected_keys expected_response, response_json
   end
 
   test "logged in milestone with existing level source and level source image" do
@@ -453,11 +462,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    assert_equal level_source, assigns(:level_source)
-
     expected_response = build_expected_response(
-        level_source: "http://test.host/c/#{assigns(:level_source).id}",
-        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{assigns(:activity).id}")
+        level_source: "http://test.host/c/#{level_source.id}",
+        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{Activity.last.id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
 
@@ -480,12 +487,9 @@ class ActivitiesControllerTest < ActionController::TestCase
     end
 
     assert_response :success
-
-    assert_equal level_source, assigns(:level_source)
-
     expected_response = build_expected_response(
-        level_source: "http://test.host/c/#{assigns(:level_source).id}",
-        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{assigns(:activity).id}")
+        level_source: "http://test.host/c/#{level_source.id}",
+        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{Activity.last.id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
 
@@ -511,11 +515,10 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    assert_equal level_source, assigns(:level_source)
 
     expected_response = build_expected_response(
-        level_source: "http://test.host/c/#{assigns(:level_source).id}",
-        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{assigns(:activity).id}")
+        level_source: "http://test.host/c/#{level_source.id}",
+        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{Activity.last.id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
 
@@ -541,11 +544,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    assert_equal level_source, assigns(:level_source)
-
     expected_response = build_expected_response(
-        level_source: "http://test.host/c/#{assigns(:level_source).id}",
-        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{assigns(:activity).id}")
+        level_source: "http://test.host/c/#{level_source.id}",
+        save_to_gallery_url: "/gallery?gallery_activity%5Bactivity_id%5D=#{Activity.last.id}")
     assert_equal_expected_keys expected_response, JSON.parse(@response.body)
   end
 
@@ -582,8 +583,9 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
-    expected_response = build_expected_response(level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+    response_json = JSON.parse(@response.body)
+    expected_response = build_expected_response(level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
   end
 
   test "logged in milestone race condition retrying code will not retry forever" do
@@ -618,10 +620,11 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
+    response_json = JSON.parse(@response.body)
     expected_response = build_expected_response(
         total_lines: 0,
-        level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+        level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
   end
 
   test "anonymous milestone with existing session adds progress in session" do
@@ -645,10 +648,11 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
+    response_json = JSON.parse(@response.body)
     expected_response = build_expected_response(
         total_lines: 10,
-        level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+        level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
   end
 
   test "anonymous milestone not passing" do
@@ -672,7 +676,9 @@ class ActivitiesControllerTest < ActionController::TestCase
     assert_equal 10, client_state.lines
 
     assert_response :success
-    assert_equal_expected_keys build_try_again_response, JSON.parse(@response.body)
+
+    response_json = JSON.parse(@response.body)
+    assert_equal_expected_keys build_try_again_response(response_json['level_source_id']), response_json
   end
 
   test "anonymous milestone with image saves image but does not save to gallery" do
@@ -698,10 +704,11 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     assert_response :success
 
+    response_json = JSON.parse(@response.body)
     expected_response = build_expected_response(
         total_lines: 10,
-        level_source: "http://test.host/c/#{assigns(:level_source).id}")
-    assert_equal_expected_keys expected_response, JSON.parse(@response.body)
+        level_source: "http://test.host/c/#{response_json['level_source_id']}")
+    assert_equal_expected_keys expected_response, response_json
   end
 
   test "does not save image when s3 upload fails" do
@@ -724,8 +731,6 @@ class ActivitiesControllerTest < ActionController::TestCase
         post :milestone, @milestone_params.merge(user_id: 0, :save_to_gallery => 'true', image: Base64.encode64(@good_image))
       end
     end
-
-    assert_equal nil, assigns(:level_source_image)
   end
 
 
