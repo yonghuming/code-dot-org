@@ -59,9 +59,7 @@
     var buildHeader = function () {
         dashboard.buildHeader(#{script_level.stage.summarize.to_json}, #{script_level.level_id}, #{@user.try(:id) || 'null'}, #{@section.try(:id) || 'null'});
     };
-    if(#{!!(@current_user).to_json}) {
-      dashboard.clientState.refreshScriptProgressFromServer(#{script_level.script_id}).always(buildHeader);
-    } else {
-      buildHeader();
-    }
+    buildHeader();
+    // TODO: Only make this call if the user is signed in
+    dashboard.clientState.refreshScriptProgressFromServer(#{script_level.script_id}).done(buildHeader);
     //]]>
