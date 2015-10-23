@@ -74,7 +74,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     assert_creates(LevelSource, Activity, UserLevel, UserScript) do
       assert_does_not_create(GalleryActivity) do
@@ -108,7 +108,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     UserScript.create(user: @user, script: @script_level.script)
     UserLevel.create(level: @script_level.level, user: @user, script: @script_level.script)
@@ -131,7 +131,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     assert_creates(Activity, UserLevel, UserScript) do
       assert_does_not_create(GalleryActivity, LevelSource) do
@@ -170,7 +170,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     expect_controller_logs_milestone_regexp(/-20/)
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     assert_creates(LevelSource, Activity, UserLevel, UserScript) do
       assert_does_not_create(GalleryActivity) do
@@ -199,7 +199,7 @@ class ActivitiesControllerTest < ActionController::TestCase
 
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     assert_creates(LevelSource, Activity, UserLevel, UserScript) do
       assert_does_not_create(GalleryActivity) do
@@ -234,7 +234,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     # existing level
     script_start_date = Time.now - 5.days
@@ -273,7 +273,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     expect_s3_upload
 
@@ -301,7 +301,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     assert_creates(LevelSource, Activity, UserLevel) do
       assert_does_not_create(GalleryActivity) do
@@ -327,7 +327,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     assert_creates(LevelSource, Activity, UserLevel) do
       assert_does_not_create(GalleryActivity) do
@@ -412,7 +412,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check)
+    UserProgress.expects(:trophy_check)
 
     expect_s3_upload
 
@@ -438,7 +438,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check)
+    UserProgress.expects(:trophy_check)
 
     program = "<whatever>"
 
@@ -560,7 +560,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     # do all the logging
     @controller.expects :log_milestone
     @controller.expects :slog
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
 
     # some Mocha shenanigans to simulate throwing a duplicate entry
     # error and then succeeding by returning the existing userlevel
@@ -610,7 +610,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).never # no trophy if not logged in
+    UserProgress.expects(:trophy_check).never # no trophy if not logged in
 
     assert_creates(LevelSource) do
       assert_does_not_create(Activity, UserLevel) do
@@ -638,7 +638,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).never # no trophy if not logged in
+    UserProgress.expects(:trophy_check).never # no trophy if not logged in
 
     assert_creates(LevelSource) do
       assert_does_not_create(Activity, UserLevel) do
@@ -692,7 +692,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).never # no trophy if not logged in
+    UserProgress.expects(:trophy_check).never # no trophy if not logged in
 
     expect_s3_upload
 
@@ -722,7 +722,7 @@ class ActivitiesControllerTest < ActionController::TestCase
     @controller.expects :log_milestone
     @controller.expects :slog
 
-    @controller.expects(:trophy_check).never # no trophy if not logged in
+    UserProgress.expects(:trophy_check).never # no trophy if not logged in
 
     expect_s3_upload_failure
 
@@ -764,9 +764,8 @@ class ActivitiesControllerTest < ActionController::TestCase
 
   test 'sharing program with http error slogs' do
     # allow sharing when there's an error, slog so it's possible to look up and review later
-
-    @controller.stubs(:find_share_failure).raises(OpenURI::HTTPError.new('something broke', 'fake io'))
-    @controller.expects(:slog).with(:tag, :error, :level_source_id) do |params|
+    UserProgress.stubs(:find_share_failure).raises(OpenURI::HTTPError.new('something broke', 'fake io'))
+    UserProgress.expects(:slog).with(:tag, :error, :level_source_id) do |params|
       params[:tag] == 'share_checking_error' && params[:error] == 'something broke' && params[:level_source_id] != nil
     end
     @controller.expects(:slog).with(:tag) {|params| params[:tag] == 'activity_finish' }
@@ -852,11 +851,11 @@ class ActivitiesControllerTest < ActionController::TestCase
     script_level_no_trophies = Script.where(trophies: false).first.script_levels.first
     script_level_with_trophies = Script.where(trophies: true).first.script_levels.first
 
-    @controller.expects(:trophy_check).never
+    UserProgress.expects(:trophy_check).never
     post :milestone, @milestone_params.merge(script_level_id: script_level_no_trophies.id)
     assert_response :success
 
-    @controller.expects(:trophy_check).with(@user)
+    UserProgress.expects(:trophy_check).with(@user)
     post :milestone, @milestone_params.merge(script_level_id: script_level_with_trophies.id)
     assert_response :success
   end
