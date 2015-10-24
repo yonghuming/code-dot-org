@@ -196,8 +196,8 @@ dashboard.clientState.refreshScriptProgressFromServer = function (scriptId) {
 };
 
 /**
- * Given an object mapping level_id to status, merge it into clientState.
- * In the case that there is a conflict, take the better of the two status.
+ * Given an object mapping level_id to states, merge it into clientState.
+ * In the case that there is a conflict, take the better of the two states.
  *
  * @param levelProgress
  */

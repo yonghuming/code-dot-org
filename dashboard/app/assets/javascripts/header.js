@@ -34,7 +34,7 @@ dashboard.buildHeader = function (stageData, currentLevelId, userId, sectionId) 
 
   $('.header_text').first().text(stageData.title);
   if (stageData.finishLink) {
-    $('.header_finished_link').show().append($('<a>').attr('href', stageData.finishLink).text(stageData.finishText));
+    $('.header_finished_link').empty().show().append($('<a>').attr('href', stageData.finishLink).text(stageData.finishText));
   }
   if (stageData.script_stages > 1) {
     $('.header_popup_link').show();
@@ -51,6 +51,7 @@ dashboard.buildHeader = function (stageData, currentLevelId, userId, sectionId) 
     $('.header_popup .header_text').text(progressData.linesOfCodeText);
   }
   var progressContainer = $('.progress_container');
+  progressContainer.empty();
   stageData.levels.forEach(function(level, index, levels) {
     var status = (levelProgress[level.id] || {}).status || 'not_tried';
     var defaultClass = level.kind == 'assessment' ? 'puzzle_outer_assessment' : 'puzzle_outer_level';
