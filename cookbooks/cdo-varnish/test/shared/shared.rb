@@ -29,7 +29,7 @@ module Cdo
     def self.setup
       puts 'setup'
       $ngrok_pid = $cloudfront && spawn('/usr/local/ngrok/ngrok start cdo --config=/home/kitchen/.ngrok2/ngrok.yml --log=stdout')
-      $pid = spawn('cd ~; java -jar mock.jar')
+      $pid = spawn('cd ~; java -jar mock.jar --verbose')
       # Don't start tests until wiremock is live.
       mock_started = false
       until mock_started
@@ -92,7 +92,9 @@ JSON
       def _request(url, headers={}, cookies={}, method='GET')
         header_string = headers.map { |key, value| "-H \"#{key}: #{value}\"" }.join(' ')
         cookie_string = cookies.empty? ? '' : "--cookie \"#{cookies.map{|k,v|"#{escape(k)}=#{escape(v)}"}.join('; ')}\""
-        `curl -X #{method} -s #{cookie_string} #{header_string} -i #{url}`.tap{assert_equal 0, $?.exitstatus}
+        curl_string = "curl -X #{method} -s #{cookie_string} #{header_string} -i #{url}"
+        puts "Request: #{curl_string}"
+        `#{curl_string}`.tap{|response| puts "Response: #{response}"; assert_equal 0, $?.exitstatus}
       end
 
       # Send an HTTP request to the local mock server directly.
@@ -434,19 +436,19 @@ module HttpCacheTest
         big_file = '.' * 100_000
         mock_response url, big_file, {}, {'Content-Type' => 'audio/mpeg'}
 
-        response = proxy_request url, {'Range' => 'bytes=0-'}
+        response = proxy_request url, {'Range' => 'bytes=0-499'}
         assert_miss response
-        assert_equal integration ? 206 : 200, code(response)
-        assert_equal 'bytes 0-99999/100000', get_header(response, 'Content-Range').chomp if integration
+        assert_equal 200, code(response)
         assert_equal big_file, last_line(response)
 
         # Development does not support range requests yet
         if integration
-          response = proxy_request url, {'Range' => 'bytes=95000-99999'}
+          sleep 5
+          response = proxy_request url, {'Range' => 'bytes=0-499'}
           assert_hit response
           range = get_header(response, 'Content-Range')
-          assert_equal 206, code(response)
-          assert_equal 'bytes 95000-99999/100000', range.chomp
+          assert_equal 206, code(response), "Invalid response: #{response}"
+          assert_equal 'bytes 0-499/100000', range.chomp
         end
       end
     end

@@ -126,12 +126,6 @@ if (req.http.Authorization /* || req.http.Cookie */) {
   return (pass);
 }
 
-# Workaround for https://www.varnish-cache.org/trac/ticket/1643
-# Fixed in Varnish 4.1 (TODO: Remove workaround after upgrade)
-if (req.http.Range) {
-  return (pipe);
-}
-
 return (hash);
 }
 
