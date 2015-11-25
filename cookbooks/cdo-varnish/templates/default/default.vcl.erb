@@ -103,6 +103,12 @@ if (req.http.X-Cookie-language_) {
 <%= setup_behavior(config, 'req', &method(:process_proxy)) %>
 ###
 
+# Workaround for https://www.varnish-cache.org/trac/ticket/1643
+# Fixed in Varnish 4.1 (TODO: Remove workaround after upgrade)
+if (req.http.range ~ "bytes=0-$") {
+  unset req.http.range;
+}
+
 # Override builtin VCL with customizations:
 # 1. Allow caching whitelisted cookies.
 # 2. Return 403 instead of (pipe) on unsupported HTTP request methods.

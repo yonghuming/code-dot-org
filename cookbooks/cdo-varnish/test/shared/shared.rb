@@ -29,7 +29,7 @@ module Cdo
     def self.setup
       puts 'setup'
       $ngrok_pid = $cloudfront && spawn('/usr/local/ngrok/ngrok start cdo --config=/home/kitchen/.ngrok2/ngrok.yml --log=stdout')
-      $pid = spawn('cd ~; java -jar mock.jar --verbose')
+      $pid = spawn('cd ~; java -jar mock.jar')
       # Don't start tests until wiremock is live.
       mock_started = false
       until mock_started
@@ -162,7 +162,7 @@ JSON
       end
 
       def get_header(response, header)
-        match = /#{header}: ([^\s]+)/.match(response)
+        match = /#{header}: (.+)$/.match(response)
         match && match[1]
       end
     end
@@ -425,6 +425,29 @@ module HttpCacheTest
       response = proxy_request url, {}, {}, 'FOO'
       assert_equal 403, code(response)
     end
+
+    it 'supports range requests' do
+      # Loop a few times since this test can fail intermittently.
+      5.times do
+        url = build_url 'x', 'sound.mp3'
+        big_file = '.' * 100_000
+        mock_response url, big_file
+
+        response = proxy_request url, {'Range' => 'bytes=0-'}
+        assert_miss response
+        assert_equal 200, code(response)
+        assert_equal big_file, last_line(response)
+
+        # Development does not support range requests yet
+        if $environment == 'integration'
+          response = proxy_request url, {'Range' => 'bytes=95000-99999'}
+          assert_hit response
+          assert_equal 206, code(response)
+          assert_equal 'bytes 95000-99999/100000', get_header(response, 'Content-Range').chomp
+        end
+      end
+    end
+
   end
 end
 
