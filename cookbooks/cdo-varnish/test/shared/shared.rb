@@ -428,22 +428,25 @@ module HttpCacheTest
 
     it 'supports range requests' do
       # Loop a few times since this test can fail intermittently.
+      integration = $environment == 'integration'
       5.times do
         url = build_url 'x', 'sound.mp3'
         big_file = '.' * 100_000
-        mock_response url, big_file
+        mock_response url, big_file, {}, {'Content-Type' => 'audio/mpeg'}
 
         response = proxy_request url, {'Range' => 'bytes=0-'}
         assert_miss response
-        assert_equal 200, code(response)
+        assert_equal integration ? 206 : 200, code(response)
+        assert_equal 'bytes 0-99999/100000', get_header(response, 'Content-Range').chomp if integration
         assert_equal big_file, last_line(response)
 
         # Development does not support range requests yet
-        if $environment == 'integration'
+        if integration
           response = proxy_request url, {'Range' => 'bytes=95000-99999'}
           assert_hit response
+          range = get_header(response, 'Content-Range')
           assert_equal 206, code(response)
-          assert_equal 'bytes 95000-99999/100000', get_header(response, 'Content-Range').chomp
+          assert_equal 'bytes 95000-99999/100000', range.chomp
         end
       end
     end
