@@ -434,7 +434,7 @@ module HttpCacheTest
       5.times do
         url = build_url 'x', 'sound.mp3'
         big_file = '.' * 100_000
-        mock_response url, big_file, {}, {'Content-Type' => 'audio/mpeg'}
+        mock_response url, big_file, {}, {'Content-Type' => 'audio/mpeg', 'Content-Length' => '100000'}
 
         response = proxy_request url, {'Range' => 'bytes=0-499'}
         assert_miss response
@@ -443,7 +443,6 @@ module HttpCacheTest
 
         # Development does not support range requests yet
         if integration
-          sleep 5
           response = proxy_request url, {'Range' => 'bytes=0-499'}
           assert_hit response
           range = get_header(response, 'Content-Range')
