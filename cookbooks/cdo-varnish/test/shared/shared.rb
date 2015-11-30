@@ -25,10 +25,13 @@ module Cdo
     LOCALHOST = 'localhost'
     VARNISH_URL = "#{LOCALHOST}:#{VARNISH_PORT}"
     CLOUDFRONT_URL = "https://#{$environment}-studio.code.org"
+    CLOUDFRONT_URL_HTTP = "http://#{$environment}-studio.code.org"
 
     def self.setup
       puts 'setup'
-      $ngrok_pid = $cloudfront && spawn('/usr/local/ngrok/ngrok start cdo --config=/home/kitchen/.ngrok2/ngrok.yml --log=stdout')
+      if $cloudfront
+        $ngrok_pid = spawn('/usr/local/ngrok/ngrok start cdo --config=/home/kitchen/.ngrok2/ngrok.yml --log=stdout')
+      end
       $pid = spawn('cd ~; java -jar mock.jar --verbose')
       # Don't start tests until wiremock is live.
       mock_started = false
@@ -47,7 +50,7 @@ module Cdo
       Process.wait $pid
       if $cloudfront
         `kill -INT #{$ngrok_pid}`
-        Process.wait $pid
+        Process.wait $ngrok_pid
       end
       puts 'teardown finished'
     end
@@ -87,6 +90,10 @@ JSON
       # URI-escape helper for cookie keys/values.
       def escape(s)
         URI.encode_www_form_component s
+      end
+
+      def http_request(url)
+        _request("#{$cloudfront ? CLOUDFRONT_URL_HTTP : VARNISH_URL}#{url}")
       end
 
       def _request(url, headers={}, cookies={}, method='GET')
@@ -203,7 +210,7 @@ module HttpCacheIntegrationTest
     describe 'integration server' do
       include Cdo::MockServer::Helpers
       it 'redirects HTTP to HTTPS' do
-        response = proxy_request('/https',{'X-Forwarded-Proto' => 'none'})
+        response = http_request '/https'
         assert_equal 301, code(response)
         location = /Location: ([^\s]+)/.match(response)[1]
         assert_match /https:\/\/.*\/https/, location
