@@ -436,26 +436,27 @@ module HttpCacheTest
     end
 
     it 'supports range requests' do
+      skip 'Development does not support range requests yet' unless $environment == 'integration'
+
       # Loop a few times since this test can fail intermittently.
-      integration = $environment == 'integration'
       5.times do
         url = build_url 'x', 'sound.mp3'
-        big_file = '.' * 100_000
-        mock_response url, big_file, {}, {'Content-Type' => 'audio/mpeg', 'Content-Length' => '100000'}
+        random_string = Array.new(100_000){[*'0'..'9', *'a'..'z', *'A'..'Z'].sample}.join
+        # Note that content-length is required
+        mock_response url, random_string, {}, {'Content-Type' => 'audio/mpeg', 'Content-Length' => '100000'}
 
         response = proxy_request url, {'Range' => 'bytes=0-499'}
+        range = get_header(response, 'Content-Range')
         assert_miss response
-        assert_equal 200, code(response)
-        assert_equal big_file, last_line(response)
+        assert_equal 206, code(response), "Invalid response: #{response}"
+        assert_equal 'bytes 0-499/100000', range && range.chomp
+        assert_equal random_string[0..499], last_line(response)
 
-        # Development does not support range requests yet
-        if integration
-          response = proxy_request url, {'Range' => 'bytes=0-499'}
-          assert_hit response
-          range = get_header(response, 'Content-Range')
-          assert_equal 206, code(response), "Invalid response: #{response}"
-          assert_equal 'bytes 0-499/100000', range.chomp
-        end
+        response = proxy_request url, {'Range' => 'bytes=0-'}
+        assert_hit response
+        assert_equal 206, code(response), "Invalid response: #{response}"
+        range = get_header(response, 'Content-Range')
+        assert_equal 'bytes 0-99999/100000', range && range.chomp
       end
     end
 
