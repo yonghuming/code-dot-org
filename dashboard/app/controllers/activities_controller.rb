@@ -168,9 +168,17 @@ class ActivitiesController < ApplicationController
 
     passed = Activity.passing?(test_result)
     if lines > 0 && passed
-      current_user.total_lines += lines
+
+      last_passing = Activity.where(user: current_user, level: @level).
+        where("test_result >= ?", Activity::MINIMUM_PASS_RESULT).
+        order(created_at: :desc).first
+
+      last_passing_lines = last_passing ? last_passing.lines : 0
+      new_lines = [0, lines - last_passing_lines].max
+
+      current_user.total_lines += new_lines
       # bypass validations/transactions/etc
-      User.where(id: current_user.id).update_all(total_lines: current_user.total_lines)
+      User.where(id: current_user.id).update_all(total_lines: current_user.total_lines) unless new_lines == 0
     end
 
     # blockly sends us 'undefined', 'false', or 'true' so we have to check as a string value
