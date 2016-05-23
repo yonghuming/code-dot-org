@@ -1,11 +1,11 @@
 var _ = require('@cdo/apps/lodash');
-require('require-globify');
 
 module.exports = {
   // Get all json files under directory path
   getCollections: function () {
-    // require-globify transform
-    var files = require('../levelSolutions/**/*.js', {hash: 'path'});
+    // XXX: verify that this does the same thing as what it replaced.
+    var context = require.context('../levelSolutions/', true, /.*\.js/);
+    var files = context.keys();
     var testCollections = [];
     Object.keys(files).forEach(function (file) {
       // Setting that allows us to ignore particular level files
