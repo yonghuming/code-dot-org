@@ -23,7 +23,7 @@ require('./condBlockTest.js');
 //require('./dirtDrawingTest.js');
 //require('./dropletUtilsTest.js');
 require('./duplicateVariablesTest.js');
-//require('./ejsTest.js');
+require('./ejsTest.js');
 //require('./evalTests.js');
 require('./executionInfoTests.js');
 require('./experimentTest.js');
