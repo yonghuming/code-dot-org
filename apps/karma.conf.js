@@ -27,6 +27,7 @@ module.exports = function (config) {
 //      './test/netsim/*.js',
 //      './test/templates/*.js',
       {pattern:'**/*.png', watched:false, included: false},
+      {pattern:'**/*.cur', watched:false, included: false},
     ],
 
     proxies: {
