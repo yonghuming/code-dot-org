@@ -104,94 +104,38 @@ progress.populateProgress = function (scriptName, puzzlePage) {
   }
 };
 
-progress.renderStageProgress = function (stageData, progressData, clientProgress, currentLevelId, puzzlePage) {
-  var serverProgress = progressData.levels || {};
+progress.renderStageProgress = function (stageData, progressData, clientProgress, currentLevelId, puzzlePage, scriptName) {
   var currentLevelIndex = null;
-  var lastLevelId = null;
-  var levelRepeat = 0;
 
-  var combinedProgress = stageData.levels.map(function (level, index) {
+  var combinedProgress = stageData.levels.forEach(function (level, index) {
     // Determine the current level index.
     // However, because long assessments can have the same level appearing
     // multiple times, just set this the first time it's determined.
     if (level.id === currentLevelId && currentLevelIndex === null) {
       currentLevelIndex = index;
     }
-
-    // If we have a multi-page level, then we will encounter the same level ID
-    // multiple times in a row.  Keep track of how many times we've seen it
-    // repeat, so that we know what page we're up to.
-    if (level.id === lastLevelId) {
-      levelRepeat++;
-    } else {
-      lastLevelId = level.id;
-      levelRepeat = 0;
-    }
-
-    var status;
-    if (serverProgress && serverProgress[level.id] && serverProgress[level.id].submitted) {
-      status = "submitted";
-    } else if (serverProgress && serverProgress[level.id] && serverProgress[level.id].pages_completed) {
-      // The dot is considered perfect if the page is considered complete.
-      var pageCompleted = serverProgress[level.id].pages_completed[levelRepeat];
-      status = pageCompleted ? "perfect" : "attempted";
-    } else if (clientState.queryParams('user_id')) {
-      // Show server progress only (the student's progress)
-      status = progress.activityCssClass((serverProgress[level.id] || {}).result);
-    } else {
-      // Merge server progress with local progress
-      status = progress.mergedActivityCssClass((serverProgress[level.id] || {}).result, clientProgress[level.id]);
-    }
-
-    var href = level.url + location.search;
-
-    return {
-      title: level.title,
-      status: status,
-      kind: level.kind,
-      url: href,
-      id: level.id
-    };
   });
 
   if (currentLevelIndex !== null && puzzlePage !== -1) {
     currentLevelIndex += puzzlePage - 1;
   }
 
+  var store = loadProgress({stages: [stageData], name: scriptName});
   var mountPoint = document.createElement('div');
   mountPoint.style.display = 'inline-block';
+
   $('.progress_container').replaceWith(mountPoint);
-  ReactDOM.render(React.createElement(StageProgress, {
-    levels: combinedProgress,
-    currentLevelIndex: currentLevelIndex
-  }), mountPoint);
+  render(
+    <Provider store={store}>
+      <StageProgress currentLevelIndex={currentLevelIndex}/>
+    </Provider>,
+    mountPoint
+  );
 };
 
 progress.renderCourseProgress = function (scriptData) {
-  var teacherCourse = $('#landingpage').hasClass('teacher-course');
+  var store = loadProgress(scriptData);
   var mountPoint = document.createElement('div');
-
-  let store = createStore((state = [], action) => {
-    if (action.type === 'MERGE_PROGRESS') {
-      return {
-        display: state.display,
-        stages: state.stages.map(stage => Object.assign({}, stage, {levels: stage.levels.map(level => {
-          let best = clientState.mergeActivityResult(level.best_result, action.progress[level.id]);
-          let status = progress.activityCssClass(best);
-          return Object.assign({}, level, {best_result: best, status: status});
-        })}))
-      };
-    }
-    return state;
-  }, {
-    display: teacherCourse ? 'list' : 'dots',
-    stages: scriptData.stages
-  });
-
-  store.dispatch({
-    type: 'MERGE_PROGRESS',
-    progress: clientState.allLevelsProgress()[scriptData.name] || {}
-  });
 
   $.ajax('/api/user_progress/' + scriptData.name).done(function (data) {
     data = data || {};
@@ -219,5 +163,32 @@ progress.renderCourseProgress = function (scriptData) {
     </Provider>,
     mountPoint
   );
-  //progress.populateProgress(scriptData.name);
 };
+
+function loadProgress(scriptData) {
+  var teacherCourse = $('#landingpage').hasClass('teacher-course');
+
+  let store = createStore((state = [], action) => {
+    if (action.type === 'MERGE_PROGRESS') {
+      return {
+        display: state.display,
+        stages: state.stages.map(stage => Object.assign({}, stage, {levels: stage.levels.map(level => {
+          let best = clientState.mergeActivityResult(level.best_result, action.progress[level.id]);
+          let status = progress.activityCssClass(best);
+          return Object.assign({}, level, {best_result: best, status: status});
+        })}))
+      };
+    }
+    return state;
+  }, {
+    display: teacherCourse ? 'list' : 'dots',
+    stages: scriptData.stages
+  });
+
+  store.dispatch({
+    type: 'MERGE_PROGRESS',
+    progress: clientState.allLevelsProgress()[scriptData.name] || {}
+  });
+
+  return store;
+}

@@ -1,5 +1,6 @@
 /* global React, dashboard */
 
+import { connect } from 'react-redux';
 import {STAGE_PROGRESS_TYPE} from './types';
 
 /**
@@ -54,3 +55,7 @@ var StageProgress = React.createClass({
   }
 });
 module.exports = StageProgress;
+
+export default connect(state => ({
+  levels: state.stages[0].levels
+}))(StageProgress);

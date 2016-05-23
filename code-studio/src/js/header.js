@@ -57,7 +57,7 @@ header.build = function (stageData, progressData, currentLevelId, scriptName, pu
     $('.header_popup .header_text').text(progressData.linesOfCodeText);
   }
 
-  progress.renderStageProgress(stageData, progressData, clientProgress, currentLevelId, puzzlePage);
+  progress.renderStageProgress(stageData, progressData, clientProgress, currentLevelId, puzzlePage, scriptName);
 
   $('.level_free_play').qtip({
     content: {
