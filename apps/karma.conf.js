@@ -1,6 +1,8 @@
 var webpackConfig = require('./webpack.config');
 var _ = require('lodash');
 
+var PORT = 9876;
+
 module.exports = function (config) {
   config.set({
 
@@ -24,7 +26,12 @@ module.exports = function (config) {
 //      './test/gamelab/*.js',
 //      './test/netsim/*.js',
 //      './test/templates/*.js',
+      {pattern:'**/*.png', watched:false, included: false},
     ],
+
+    proxies: {
+      '/lib/': 'http://localhost:'+PORT+'/base/lib/',
+    },
 
 
     // list of files to exclude
@@ -56,7 +63,7 @@ module.exports = function (config) {
 
 
     // web server port
-    port: 9876,
+    port: PORT,
 
 
     // enable / disable colors in the output (reporters and logs)
