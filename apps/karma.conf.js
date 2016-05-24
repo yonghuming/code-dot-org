@@ -26,8 +26,8 @@ module.exports = function (config) {
 //      './test/gamelab/*.js',
 //      './test/netsim/*.js',
 //      './test/templates/*.js',
-      {pattern:'**/*.png', watched:false, included: false},
-      {pattern:'**/*.cur', watched:false, included: false},
+      {pattern:'lib/**/*.png', watched:false, included: false},
+      {pattern:'lib/**/*.cur', watched:false, included: false},
     ],
 
     proxies: {
