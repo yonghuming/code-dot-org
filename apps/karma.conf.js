@@ -1,4 +1,5 @@
 var webpackConfig = require('./webpack.config');
+var webpack = require('webpack');
 var _ = require('lodash');
 
 var PORT = 9876;
@@ -18,20 +19,17 @@ module.exports = function (config) {
     // list of files / patterns to load in the browser
     files: [
       'build/package/js/blockly*js',
+      'test/integration-index.js',
       'test/index.js',
-//      './test/*.js',
-//      './test/applab/*.js',
-//      './test/calc/*.js',
-//      './test/craft/*.js',
-//      './test/gamelab/*.js',
-//      './test/netsim/*.js',
-//      './test/templates/*.js',
-      {pattern:'lib/**/*.png', watched:false, included: false},
-      {pattern:'lib/**/*.cur', watched:false, included: false},
+      {pattern:'lib/**/*.png', watched: false, included: false},
+      {pattern:'lib/**/*.cur', watched: false, included: false},
+      {pattern:'lib/**/*.js', watched: false, included: false},
     ],
 
     proxies: {
       '/lib/': 'http://localhost:'+PORT+'/base/lib/',
+      '/apps/lib/': 'http://localhost:'+PORT+'/base/lib/',
+      '/blockly/': 'http://localhost:'+PORT+'/base/lib/blockly/',
     },
 
 
@@ -44,10 +42,15 @@ module.exports = function (config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       "test/index.js": ["webpack", "sourcemap"],
+      "test/integration-index.js": ["webpack", "sourcemap"],
     },
 
     webpack: _.extend({}, webpackConfig, {
       devtool: 'inline-source-map',
+      externals: {},
+      plugins: [
+        new webpack.ProvidePlugin({React: 'react'})
+      ]
     }),
     webpackMiddleware: {
       noInfo: true

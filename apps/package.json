@@ -113,6 +113,7 @@
     "lodash": "2.4.2",
     "lodash-cli": "2.4.2",
     "loose-envify": "^1.1.0",
+    "marked": "0.3.2",
     "messageformat": "0.2.2",
     "mkdirp": "0.5.1",
     "mochify": "2.18.0",
