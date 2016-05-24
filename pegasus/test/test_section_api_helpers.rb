@@ -58,6 +58,8 @@ class SectionApiHelperTest < Minitest::Test
             {id: 4, name: 'mc', hidden: false},
             {id: 5, name: 'hourofcode', hidden: false}
         ]
+
+        I18n.locale = 'en-US'
       end
 
       it 'accepts valid course_ids' do
@@ -76,6 +78,14 @@ class SectionApiHelperTest < Minitest::Test
         assert_includes DashboardSection.valid_courses.map {|course| course[:name]}, 'Classic Maze'
         refute_includes DashboardSection.valid_courses.map {|course| course[:name]}, 'mc'
         refute_includes DashboardSection.valid_courses.map {|course| course[:name]}, 'hourofcode'
+      end
+
+      it 'supports multiple languages' do
+        assert_includes DashboardSection.valid_courses.map {|course| course[:name]}, 'Classic Maze'
+        I18n.locale = 'it-IT'
+        assert_includes DashboardSection.valid_courses.map {|course| course[:name]}, 'Labirinto Classico'
+        I18n.locale = 'de-DE'
+        assert_includes DashboardSection.valid_courses.map {|course| course[:name]}, 'Klassisches Labyrinth'
       end
     end
 

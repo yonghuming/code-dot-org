@@ -191,37 +191,33 @@ class DashboardSection
     # only do this query once because in prod we only change courses
     # when deploying (technically this isn't true since we are in
     # pegasus and courses are owned by dashboard...)
-    return @@course_cache[course_cache_key] if @@course_cache.key?(course_cache_key)
+    unless @@course_cache[course_cache_key]
+      # don't crash when loading environment before database has been created
+      return {} unless (Dashboard.db[:scripts].count rescue nil)
 
-    # don't crash when loading environment before database has been created
-    return {} unless (Dashboard.db[:scripts].count rescue nil)
+      where_clause = Dashboard.admin?(user_id) ? "" : "hidden = 0"
 
-    where_clause = Dashboard.admin?(user_id) ? "" : "hidden = 0"
+      # cache result if we have to actually run the query
+      @@course_cache[course_cache_key] =
+        Dashboard.db[:scripts].
+          where(where_clause).
+          select(:id, :name, :hidden).
+          all
+    end
 
-    # Cache the courses names in English for all users. After the
-    # facilitator summit (2016-5-23) we should change the cache to be
-    # per-language.
-    course_locale = 'en-US'
-
-    # cache result if we have to actually run the query
-    @@course_cache[course_cache_key] =
-      Dashboard.db[:scripts].
-        where(where_clause).
-        select(:id, :name, :hidden).
-        all.
-        map do |course|
-          name = ScriptConstants.teacher_dashboard_name(course[:name])
-          first_category = ScriptConstants.categories(course[:name])[0] || 'other'
-          position = ScriptConstants.position_in_category(name, first_category)
-          name = I18n.t("#{name}_name", default: name, locale: course_locale)
-          name += " *" if course[:hidden]
-          {
-            id: course[:id],
-            name: name,
-            category: I18n.t("#{first_category}_category_name", default: first_category, locale: course_locale),
-            position: position
-          }
-        end
+    @@course_cache[course_cache_key].map do |course|
+      name = ScriptConstants.teacher_dashboard_name(course[:name])
+      first_category = ScriptConstants.categories(course[:name])[0] || 'other'
+      position = ScriptConstants.position_in_category(name, first_category)
+      name = I18n.t("#{name}_name", default: name)
+      name += " *" if course[:hidden]
+      {
+        id: course[:id],
+        name: name,
+        category: I18n.t("#{first_category}_category_name", default: first_category),
+        position: position
+      }
+    end
   end
 
   def self.valid_course_id?(course_id)
