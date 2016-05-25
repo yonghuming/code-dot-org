@@ -263,8 +263,9 @@ module RakeUtils
     "%.1d:%.2d minutes" % [minutes, seconds]
   end
 
-  def self.update_yml_file(file)
+  def self.update_yml(file)
     data_hash = YAML.load_file(file)
+    data_hash ||= Hash.new
     yield data_hash
     File.open(file, 'w') { |f| YAML.dump(data_hash, f) }
   end

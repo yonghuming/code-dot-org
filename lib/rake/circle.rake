@@ -8,7 +8,7 @@ namespace :circle do
   desc 'Inserts build_my and use_my triggers for this circle test run.'
   task :write_locals_yml do
     locals_file = deploy_dir('locals.yml')
-    RakeUtils.update_yml_file(locals_file) do |hash|
+    RakeUtils.update_yml(locals_file) do |hash|
       hash['use_my_apps'] = true
       hash['use_my_apps'] = true
       hash['use_my_shared_js'] = true
