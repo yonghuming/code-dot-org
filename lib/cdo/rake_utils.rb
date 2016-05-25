@@ -262,4 +262,10 @@ module RakeUtils
     seconds = total_seconds - (minutes * 60)
     "%.1d:%.2d minutes" % [minutes, seconds]
   end
+
+  def self.update_yml_file(file)
+    data_hash = YAML.load_file(file)
+    yield data_hash
+    File.open(file, 'w') { |f| YAML.dump(data_hash, f) }
+  end
 end

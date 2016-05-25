@@ -5,6 +5,23 @@ RUN_UI_TESTS_TAG = '[test ui]'
 RUN_ALL_TESTS_TAG = '[test all]'
 
 namespace :circle do
+  desc 'Inserts build_my and use_my triggers for this circle test run.'
+  task :write_locals_yml do
+    locals_file = deploy_dir('locals.yml')
+    RakeUtils.update_yml_file(locals_file) do |hash|
+      hash['use_my_apps'] = true
+      hash['use_my_apps'] = true
+      hash['use_my_shared_js'] = true
+      hash['use_my_code_studio'] = true
+      hash['build_blockly_core'] = true
+      hash['build_code_studio'] = true
+      hash['build_shared_js'] = true
+      hash['build_dashboard'] = true
+      hash['build_pegasus'] = true
+      hash['build_apps'] = true
+    end
+  end
+
   desc 'Runs tests for changed sub-folders, or all tests if the tag specified is present in the most recent commit message.'
   task :run_tests do
     if GitUtils.circle_commit_contains?(RUN_ALL_TESTS_TAG)
