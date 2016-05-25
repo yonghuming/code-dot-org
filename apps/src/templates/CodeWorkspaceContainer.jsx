@@ -24,6 +24,7 @@ var styles = {
   mainRtl: {
     right: undefined,
     left: 0,
+    marginLeft: 0,
     marginRight: 15
   },
   codeWorkspace: {

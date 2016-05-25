@@ -24,7 +24,6 @@ var InstructionsWithWorkspace = React.createClass({
     setInstructionsMaxHeight: React.PropTypes.func.isRequired,
 
     shortInstructionsWhenCollapsed: React.PropTypes.bool,
-    // TODO - properly pass these to top instructions
     isRtl: React.PropTypes.bool.isRequired,
     noVisualization: React.PropTypes.bool.isRequired
   },
@@ -170,6 +169,8 @@ var InstructionsWithWorkspace = React.createClass({
             ref="topInstructions"
             shortInstructionsWhenCollapsed={!!this.props.shortInstructionsWhenCollapsed}
             height={topPaneHeight}
+            isRtl={this.props.isRtl}
+            noVisualization={this.props.noVisualization}
             onResize={this.adjustTopPaneHeight}/>
         }
         <CodeWorkspaceContainer

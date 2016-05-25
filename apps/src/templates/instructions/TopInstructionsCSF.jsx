@@ -29,6 +29,13 @@ const styles = {
     right: 0,
     // left handled by media queries for .editor-column
   },
+  mainRtl: {
+    position: 'absolute',
+    marginRight: 15,
+    top: 0,
+    left: 0,
+    // right handled by media queries for .editor-column
+  },
   body: {
     backgroundColor: 'white',
     overflowY: 'scroll',
@@ -57,6 +64,11 @@ const styles = {
     marginRight: -10,
     marginTop: 5,
     marginBottom: 5
+  },
+  collapserButtonRtl: {
+    float: 'left',
+    marginLeft: -10,
+    marginRight: 10,
   }
 };
 
@@ -76,9 +88,11 @@ var TopInstructions = React.createClass({
     maxHeight: React.PropTypes.number.isRequired,
     markdown: React.PropTypes.string,
     collapsed: React.PropTypes.bool.isRequired,
+    isRtl: React.PropTypes.bool.isRequired,
+    noVisualization: React.PropTypes.bool.isRequired,
     toggleInstructionsCollapsed: React.PropTypes.func.isRequired,
     setInstructionsHeight: React.PropTypes.func.isRequired,
-    onResize: React.PropTypes.func.isRequired
+    onResize: React.PropTypes.func.isRequired,
   },
 
   /**
@@ -86,7 +100,6 @@ var TopInstructions = React.createClass({
    * @returns {number} The height of the rendered contents in pixels
    */
   getRenderedHeight() {
-    // TODO - this is getting called a LOT - prob bc blockly?
     var instructionsContent = this.refs.instructions.refs.instructionsMarkdown;
     return $(ReactDOM.findDOMNode(instructionsContent)).outerHeight(true) + 2 * VERTICAL_PADDING;
   },
@@ -119,11 +132,15 @@ var TopInstructions = React.createClass({
     const id = this.props.id;
     const resizerHeight = (this.props.collapsed ? 0 : RESIZER_HEIGHT);
 
-    const mainStyle = [styles.main, {
-      height: this.props.height - resizerHeight
-    }, this.props.isEmbedView && styles.embedView];
+    const mainStyle = [
+      this.props.isRtl ? styles.mainRtl : styles.main,
+      {
+        height: this.props.height - resizerHeight
+      },
+      this.props.isEmbedView && styles.embedView
+    ];
 
-    const renderedMarkdown = processMarkdown(this.props.collapsed ?
+    const renderedMarkdown = processMarkdown((this.props.collapsed || this.props.isRtl) ?
       this.props.shortInstructions : this.props.markdown);
 
     return (
@@ -131,7 +148,8 @@ var TopInstructions = React.createClass({
         <div>
           <div style={styles.body}>
             <CollapserButton
-                style={styles.collapserButton}
+                style={[styles.collapserButton, this.props.isRtl && styles.collapserButtonRtl]}
+                isRtl={this.props.isRtl}
                 collapsed={this.props.collapsed}
                 onClick={this.props.toggleInstructionsCollapsed}/>
               {<Instructions
