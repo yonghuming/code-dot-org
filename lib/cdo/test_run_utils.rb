@@ -63,7 +63,7 @@ module TestRunUtils
   def self.run_shared_tests
     Dir.chdir(shared_dir) do
       with_hipchat_logging('shared tests') do
-        RakeUtils.rake 'test'
+        RakeUtils.rake_stream_output 'test'
       end
     end
   end
