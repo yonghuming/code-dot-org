@@ -5,7 +5,8 @@ require 'cdo/rake_utils'
 
 class RakeUtilsTest < Minitest::Test
   FUNKY_FILE_NAME = 'a_funky-file name.js'
-  TEST_YML_FILE = './tmp/yml_update.yml'
+  TEST_OUTPUT_DIR = './output'
+  TEST_YML_FILE = "#{TEST_OUTPUT_DIR}/yml_update.yml"
 
   def test_glob_matches_file_names
     assert RakeUtils.glob_matches_file_path?('file.js', 'file.js')
@@ -46,6 +47,7 @@ class RakeUtilsTest < Minitest::Test
   end
 
   def test_yml_update_updates_empty_file
+    FileUtils.mkdir_p(TEST_OUTPUT_DIR)
     File.new(TEST_YML_FILE, 'w')
 
     RakeUtils.update_yml(TEST_YML_FILE) do |hash|
@@ -63,6 +65,7 @@ class RakeUtilsTest < Minitest::Test
   end
 
   def test_yml_update_updates_existing_values
+    FileUtils.mkdir_p(TEST_OUTPUT_DIR)
     File.open(TEST_YML_FILE, 'w') { |f| YAML.dump({'a' => 1, 'b' => 2}, f) }
 
     RakeUtils.update_yml(TEST_YML_FILE) do |hash|
