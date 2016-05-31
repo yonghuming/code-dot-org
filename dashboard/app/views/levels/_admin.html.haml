@@ -2,7 +2,7 @@
   = javascript_include_tag 'js/levelbuilder'
 
 - if current_user && current_user.admin?
-  = render layout: 'shared/admin' do
+  = render layout: 'shared/extra_links' do
     %strong= @level.name
     %ul
       %li= link_to level_path(@level), @level
