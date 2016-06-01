@@ -47,7 +47,7 @@ class Pd::WorkshopEnrollmentController < ApplicationController
       @enrollment = ::Pd::Enrollment.new workshop: @workshop
       if @enrollment.update enrollment_params
         Pd::WorkshopMailer.teacher_enrollment_receipt(@enrollment).deliver_now
-        Pd::WorkshopMailer.organizer_enrollment_receipt(@enrollment).deliver_now
+        # Pd::WorkshopMailer.organizer_enrollment_receipt(@enrollment).deliver_now
         redirect_to action: :show, code: @enrollment.code, controller: 'pd/workshop_enrollment'
       else
         render :new
