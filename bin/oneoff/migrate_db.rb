@@ -10,10 +10,10 @@ def update_endpoints(new_hostname, environment)
   puts "Updating #{environment} DB endpoints to #{new_hostname}..."
   environment_json = JSON.parse(`knife environment show #{environment} --format json`)
   reader, writer = %w(reader writer).map do |db|
-      URI.parse(environment_json['override_attributes']['cdo-secrets']["db_#{db}"]).tap do |uri|
-        uri.hostname = new_hostname
-        environment_json['override_attributes']['cdo-secrets']["db_#{db}"] = uri.to_s
-      end
+    URI.parse(environment_json['override_attributes']['cdo-secrets']["db_#{db}"]).tap do |uri|
+      uri.hostname = new_hostname
+      environment_json['override_attributes']['cdo-secrets']["db_#{db}"] = uri.to_s
+    end
   end
   Tempfile.open(['environment','.json']) do |tmp|
     File.write(tmp.path, environment_json.to_json)
