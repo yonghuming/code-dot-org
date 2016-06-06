@@ -4,6 +4,7 @@
 
 require 'json'
 require 'uri'
+require 'tempfile'
 
 # Update database endpoint Chef Attributes in the environment.
 def update_endpoints(new_hostname, environment)
@@ -31,18 +32,19 @@ end
 def fanout(cmd)
   puts "Running #{cmd}..."
   servers = JSON.parse(`../bin/ls_frontend_servers -j`).values
-  run "pdsh -w #{servers.join(',')} -R ssh #{cmd}"
+  run "pdsh -w #{servers.join(',')} -R ssh '#{cmd}'"
 end
 
 def main
   db_host=ARGV[0]
   environment=ARGV[1]
 
-  # 1. Stop applications on all frontends. [live-site downtime begins]
-  fanout 'sudo service dashboard stop; sudo service pegasus stop'
-
-  # 2. Update application code to point to new DB instance endpoint.
+  # 1. Update application code to point to new DB instance endpoint.
+  # (Will not take effect until chef-client is called.)
   _, writer = update_endpoints(db_host, environment)
+
+  # 2. Stop applications on all frontends. [live-site downtime begins]
+  fanout 'sudo service dashboard stop; sudo service pegasus stop'
 
   # 3. Promote the new DB instance to master.
   puts "Promoting new DB instance to master..."
